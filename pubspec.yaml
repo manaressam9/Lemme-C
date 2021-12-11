@@ -33,6 +33,8 @@ dependencies:
   tflite_flutter_helper: ^0.3.0
   image_picker: ^0.8.4+4
   camera: ^0.8.1+3
+  fluttertoast: ^8.0.8
+
 
 
 

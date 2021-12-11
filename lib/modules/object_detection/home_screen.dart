@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:custom_object_detection/tflite/classifier.dart';
+import 'package:custom_object_detection/tflite/tflite_utils/image_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image/image.dart' as imageLib;
 import 'package:image_picker/image_picker.dart';
 
@@ -20,67 +22,87 @@ class _ObjDetState extends State<ObjDet> {
 
   _ObjDetState(this.cameras);
 
-  File? _image;
   late Classifier _model;
   Map<String, dynamic>? _output;
   late CameraController controller;
+  bool isWorking = false;
 
   @override
   void initState() {
     super.initState();
-    controller = CameraController(cameras[0], ResolutionPreset.max);
-    controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      controller.startImageStream((image) => null);
-      setState(() {});
-    });
     _model = Classifier(
         MODEL_FILE_NAME: 'lite4.tflite',
         LABEL_FILE_NAME: 'labelmap.txt',
         INPUT_SIZE: 640);
+
+    controller = CameraController(cameras[0], ResolutionPreset.medium);
+    controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        controller.startImageStream((image) async  {
+          if (image != null) {
+            controller.pauseVideoRecording();
+            await _handleInputImage(image);
+
+          }
+        });
+      });
+    });
   }
 
-  _imageSelection() async {
-    var img;
-    try {
-      img = await ImagePicker().pickImage(source: ImageSource.gallery);
-    } catch (e) {
-      print("Error while loading Img: $e");
-    }
-    var image1 = File(img.path);
+  _handleInputImage(CameraImage? frame) async {
+    imageLib.Image? image = ImageUtils.convertCameraImage(frame!);
+    await _predict(image!);
+  }
+
+  _predict(imageLib.Image image) async {
     //convert from XFile to Image
-    final bytes = await image1.readAsBytes();
-    final imageLib.Image image = imageLib.decodeImage(bytes)!;
-    var output1 = _model.predict(
+
+    var output1 =await _model.predict(
         image: image,
         outputTensorIndexes: [0, 1, 2, 3],
         ouputValueIndex: [1, 0, 3, 2],
         ouputBoundAxis: 2);
-    setState(() {
-      _image = image1;
-      _output = output1;
-      /*
-    recognitions.add(Recognition(i, label, score, transformedRect))
 
-    return
-    "recognitions": recognitions,
-      "stats": Stats(
-          totalPredictTime: predictElapsedTime,
-          inferenceTime: inferenceTimeElapsed,
-          preProcessingTime: preProcessElapsedTime)*/
+    setState(() {
+      _output = output1;
     });
+    Fluttertoast.showToast(msg: _output!['recognitions'][0].label);
+    controller.resumeVideoRecording();
   }
 
   @override
   Widget build(BuildContext context) {
     return controller.value.isInitialized
         ? Scaffold(
-            body: Container(height: double.infinity, child: CameraPreview(controller)),
+            body: Container(
+                height: double.infinity, child: CameraPreview(controller)),
           )
         : Container();
   }
+
+/* @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // App state changed before we got the chance to initialize.
+    if (controller == null || !controller.value.isInitialized) {
+      return;
+    }
+    if (state == AppLifecycleState.inactive) {
+      controller?.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      if (controller != null) {
+        //onNewCameraSelected(controller.description);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }*/
 }
 
 // class Model{
