@@ -1,3 +1,4 @@
+/// Bundles different elapsed times
 class Stats {
   /// Total time taken in the isolate where the inference runs
   int? totalPredictTime;
@@ -14,11 +15,9 @@ class Stats {
 
   Stats(
       {this.totalPredictTime,
-        this.inferenceTime,
-        this.totalElapsedTime,
-        this.preProcessingTime});
-
-  int get totalTime => totalPredictTime!;
+      this.totalElapsedTime,
+      this.inferenceTime,
+      this.preProcessingTime});
 
   @override
   String toString() {
