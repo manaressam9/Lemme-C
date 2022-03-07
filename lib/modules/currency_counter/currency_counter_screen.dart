@@ -7,6 +7,7 @@ import 'package:object_detection/tflite/recognition.dart';
 import 'package:object_detection/tflite/stats.dart';
 import 'package:object_detection/ui/box_widget.dart';
 import 'package:object_detection/ui/camera_view_singleton.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../ui/camera_view.dart';
 
@@ -25,6 +26,8 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
 
   /// Scaffold Key
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+
+  get infrenceResults => null;
 
   @override
   Widget build(BuildContext context){
@@ -71,6 +74,16 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
     if (results == null) {
       return Container();
     }
+
+    final FlutterTts flutterTts=FlutterTts();
+    results.forEach((element) async {
+          String currency = element.label.replaceFirst("Egp", " Pounds");
+          await flutterTts.setQueueMode(1);
+          await flutterTts.speak(currency);
+    });
+
+
+
     return Stack(
       children: results
           .map((e) => BoxWidget(

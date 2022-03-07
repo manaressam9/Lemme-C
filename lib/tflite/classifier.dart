@@ -60,9 +60,9 @@ class Classifier {
       _outputShapesIndexes.add(2);
       _outputShapesIndexes.add(3);
     } else {
-      MODEL_FILE_NAME = "models/currencyLite3.tflite";
+      MODEL_FILE_NAME = "models/currencyLite3_v1.300.tflite";
       LABEL_FILE_NAME = "labels/currencyLabels.txt";
-      INPUT_SIZE = 384;
+      INPUT_SIZE = 512;
       _outputShapesIndexes.add(1);
       _outputShapesIndexes.add(3);
       _outputShapesIndexes.add(0);

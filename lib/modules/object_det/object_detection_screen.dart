@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:object_detection/strings/strings.dart';
 import 'package:object_detection/tflite/recognition.dart';
 import 'package:object_detection/tflite/stats.dart';
@@ -69,10 +70,17 @@ class _ObjectDetectionState extends State<ObjectDetection> {
 
 
   /// Returns Stack of bounding boxes
-  Widget boundingBoxes(List<Recognition>? results) {
+  Widget boundingBoxes(List<Recognition>? results)  {
     if (results == null) {
       return Container();
     }
+
+    final FlutterTts flutterTts=FlutterTts();
+    results.forEach((element) async {
+      await flutterTts.setQueueMode(1);
+      await flutterTts.speak(element.label);
+    });
+
     return Stack(
       children: results
           .map((e) => BoxWidget(
