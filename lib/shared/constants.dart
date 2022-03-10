@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:object_detection/modules/volunteer/data/firebase//user_firebase.dart';
 
 import '../models/User.dart';
+import '../ui/camera_view_singleton.dart';
 import 'components.dart';
 
 const MAX_HEIGHT = .0;
@@ -173,7 +175,6 @@ Future<bool> checkConnection() async {
   }
 }
 
-
 Future<UserModel> getCurrentUser() async {
   UserModel? currentUser;
   if (currentUser == null) {
@@ -184,3 +185,47 @@ Future<UserModel> getCurrentUser() async {
   }
   return currentUser!;
 }
+
+const OBJECT_IMAGE_SIZE = 640;
+const CURR_IMAGE_SIZE = 512;
+
+
+
+
+//late List<CameraDescription> cameras;
+
+/// Controller
+/*CameraController? cameraController;
+
+createController(context, onLatestImageAvailable,
+    {CameraDescription? description}) async {
+*//*  if (cameraController != null && cameraController!.value.isInitialized) {
+    await cameraController!.startImageStream(onLatestImageAvailable);
+    return;
+  }*//*
+
+  cameras = await availableCameras();
+  // cameras[0] for rear-camera
+
+  cameraController =
+      CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
+  await cameraController!.initialize();
+
+// Stream of image passed to [onLatestImageAvailable] callback
+  await cameraController!.startImageStream(onLatestImageAvailable);
+
+  /// previewSize is size of each image frame captured by controller
+  ///
+  /// 352x288 on iOS, 240p (320x240) on Android with ResolutionPreset.low
+  Size previewSize = cameraController!.value.previewSize!;
+
+  /// previewSize is size of raw input image to the model
+  CameraViewSingleton.inputImageSize = previewSize;
+
+// the display width of image on screen is
+// same as screenWidth while maintaining the aspectRatio
+  Size screenSize = MediaQuery.of(context).size;
+  CameraViewSingleton.screenSize = screenSize;
+  CameraViewSingleton.ratio = screenSize.width / previewSize.height;
+  ;
+}*/

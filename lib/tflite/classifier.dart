@@ -49,12 +49,16 @@ class Classifier {
     Interpreter? interpreter,
     List<String>? labels,
   }) {
-    
+
     // _outputShapesIndexes.clear();
     if (moduleLabel == OBJ_MOD_LABEL) {
-      MODEL_FILE_NAME = 'models/detect.tflite';
+      MODEL_FILE_NAME = 'models/objectDetect_lite4.tflite';
       LABEL_FILE_NAME = "labels/labelmap.txt";
-      INPUT_SIZE = 300;
+      INPUT_SIZE = 640;
+      // TensorBuffer outputLocations = TensorBufferFloat(_outputShapes[0]);
+      // TensorBuffer outputClasses = TensorBufferFloat(_outputShapes[1]);
+      // TensorBuffer outputScores = TensorBufferFloat(_outputShapes[2]);
+      // TensorBuffer numLocations = TensorBufferFloat(_outputShapes[3]);
       _outputShapesIndexes.add(0);
       _outputShapesIndexes.add(1);
       _outputShapesIndexes.add(2);

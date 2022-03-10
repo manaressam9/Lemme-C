@@ -17,14 +17,14 @@ import 'cubit/states.dart';
 
 class PhoneVerificationScreen extends StatelessWidget {
   final RegisterCubit _cubit;
-
+  final String previousScreenName ;
   double screenHeight = 0.0;
   double screenWidth = 0.0;
   String smsCode = '';
   TextEditingController pinController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  PhoneVerificationScreen(this._cubit);
+  PhoneVerificationScreen(this._cubit,this.previousScreenName);
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +38,7 @@ class PhoneVerificationScreen extends StatelessWidget {
           handleState(context , state);
         },
         builder: (context, state) {
+
           return Scaffold(
             backgroundColor: WHITE_COLOR,
             appBar: AppBar(
@@ -150,7 +151,7 @@ class PhoneVerificationScreen extends StatelessWidget {
                           : buildDefaultBtn(
                               onPressed: () {
                                 if (_formKey.currentState!.validate())
-                                  _cubit.signUp();
+                                  previousScreenName == 'LOGIN'? _cubit.logIn() : _cubit.signUp()  ;
                               },
                               txt: 'VERIFY',
                               context: context),

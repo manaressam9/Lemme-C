@@ -47,6 +47,7 @@ buildDefaultTextField({
     /*   style: getTextTheme(context).bodyText1!.copyWith(
       color: textColor,
     ),*/
+    cursorColor: GREY_COLOR,
     onChanged: onChange,
     decoration: InputDecoration(
       /* labelStyle: getTextTheme(context)

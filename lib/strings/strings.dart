@@ -3,9 +3,9 @@ const APP_NAME = 'Blind Assistant';
 
 //modules labels
 const OBJ_MOD_LABEL = 'Object Finder';
-const CURR_MOD_LABEL = 'Counter';
+const CURR_MOD_LABEL = 'Money Counter';
 const Text_MOD_LABEL = 'Text Reader';
-const VOLUNTEER_MOD_LABEL = 'Volunteer';
+const VOLUNTEER_MOD_LABEL = 'Volunteer Requiring';
 
 //modules icons
 const OBJ_MOD_ICON = 'assets/images/object_icon.png';
@@ -36,3 +36,11 @@ const FULL_NAME = 'Full name';
 const PHONE_NUMBER = 'Phone number';
 const ID = 'National ID';
 const LOCATION = 'location';
+
+// models paths
+const OBJECT_DET_MODEL_PATH = 'models/objectDetect_lite4.tflite';
+const CURR_DET_MODEL_PATH = 'models/currencyLite3_v1.300.tflite';
+
+//label files paths
+const OBJECT_DET_LABELS_PATH = 'labels/labelmap.txt';
+const CURR_DET_LABELS_PATH = 'labels/currencyLabels.txt';

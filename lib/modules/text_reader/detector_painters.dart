@@ -4,6 +4,7 @@
 
 import 'dart:ui' as ui;
 import 'dart:math';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_ml_vision/google_ml_vision.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/shared/constants.dart';
@@ -37,8 +38,11 @@ class TextDetectorPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 
+    final FlutterTts flutterTts = FlutterTts();
+    flutterTts.awaitSpeakCompletion(true);
+    flutterTts.setSpeechRate(0.4);
     if (visionText.text != null && visionText.text!.isNotEmpty) {
-      showToast(visionText.text!.toString());
+      flutterTts.speak(visionText.text!.toString());
     }
     for (final TextBlock block in visionText.blocks) {
       for (final TextLine line in block.lines) {

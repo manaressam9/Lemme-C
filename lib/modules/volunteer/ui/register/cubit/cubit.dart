@@ -3,10 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:object_detection/modules/volunteer/ui/register/cubit/states.dart';
 
 import '../../../../../models/User.dart';
 import '../../../../../shared/constants.dart';
+import '../../../../../strings/strings.dart';
+import '../../../../../utils/tts_utils.dart';
 import '../../../data/firebase/user_firebase.dart';
 
 
@@ -14,6 +17,11 @@ class RegisterCubit extends Cubit<RegisterStates> {
   RegisterCubit() : super(RegisterInitState());
 
   static RegisterCubit get(context) => BlocProvider.of(context);
+
+  onVolunteerInit ()
+  {
+    TTS.speak(VOLUNTEER_MOD_LABEL);
+  }
 
   enterNextStage(RegisterStates stageState) {
     emit(RegisterFirstStageCompletedState());
@@ -42,6 +50,25 @@ class RegisterCubit extends Cubit<RegisterStates> {
     } on FirebaseAuthException catch (err) {
       String errMessage = handleError(err.code);
       emit(RegisterErrorState(errMessage));
+    }
+  }
+
+  logIn ({PhoneAuthCredential? phoneAuthCredential}) async
+  {
+    try {
+      emit(PhoneVerificationLoading());
+      UserCredential credential;
+      if (phoneAuthCredential != null) {
+        credential =
+        await UserFirebase.signInWithCredential(phoneAuthCredential);
+      } else {
+        credential = await UserFirebase.createCredentialAndSignIn(
+            verificationId, smsCode);
+      }
+      emit(VerificationSuccessState());
+
+    } on FirebaseAuthException catch (err) {
+      emit(RegisterErrorState(err.message.toString()));
     }
   }
 

@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:object_detection/layouts/home_screen/home_screen.dart';
 import 'package:object_detection/modules/volunteer/ui/register/phone_Verification_screen.dart';
 import 'package:object_detection/shared/styles/colors.dart';
-
 
 import '../../../../shared/components.dart';
 import '../../../../shared/constants.dart';
@@ -17,15 +17,15 @@ class RegisterScreen extends StatelessWidget {
   final _fullNameController = TextEditingController();
   final _phoneNumController = TextEditingController();
   final _idController = TextEditingController();
-  RegisterStates globalState = RegisterInitState();
   double screenHeight = 0.0;
   double screenWidth = 0.0;
-  bool isOTPAlreadySent = false;
+  RegisterStates globalState = RegisterInitState();
+
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RegisterCubit(),
+      create: (context) => RegisterCubit()..onVolunteerInit(),
       child: BlocConsumer<RegisterCubit, RegisterStates>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -38,7 +38,7 @@ class RegisterScreen extends StatelessWidget {
             body: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(
-                    screenWidth / 9, screenHeight/12, screenWidth/9, 10),
+                    screenWidth / 9, screenHeight / 16, screenWidth / 9, 10),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -76,7 +76,7 @@ class RegisterScreen extends StatelessWidget {
               if (value == null || value.isEmpty) return 'Name is required!';
               return null;
             }),
-        buildVerticalSpace(height: screenHeight / 20),
+        buildVerticalSpace(height: screenHeight / 25),
         buildDefaultTextField(
             context: context,
             controller: _phoneNumController,
@@ -92,7 +92,7 @@ class RegisterScreen extends StatelessWidget {
                   firstPart != '015')) return 'Invalid phone !';
               return null;
             }),
-        buildVerticalSpace(height: screenHeight / 20),
+        buildVerticalSpace(height: screenHeight / 25),
         buildDefaultTextField(
           context: context,
           controller: _idController,
@@ -107,7 +107,7 @@ class RegisterScreen extends StatelessWidget {
           isSecure: cubit.idSecure,
           onSuffixPressed: cubit.changeIDVisibility,
         ),
-        buildVerticalSpace(height: screenHeight / 20),
+        buildVerticalSpace(height: screenHeight / 25),
         globalState is RegisterLoadingState
             ? CircularProgressIndicator(
                 strokeWidth: 2,
@@ -119,11 +119,9 @@ class RegisterScreen extends StatelessWidget {
                   cubit.nationalId = _idController.text;
                   cubit.fullName = _fullNameController.text;
                   if (_formKey.currentState!.validate()) {
-                    if (!isOTPAlreadySent) {
-                      await cubit.sendPhoneOtp(0);
-                      isOTPAlreadySent = true;
-                    }
-                    navigate(context, PhoneVerificationScreen(cubit));
+                    await cubit.sendPhoneOtp(0);
+                    navigate(
+                        context, PhoneVerificationScreen(cubit, 'REGISTER'));
                   }
                 },
                 txt: 'Sign up',
@@ -142,7 +140,12 @@ class RegisterScreen extends StatelessWidget {
         ),
         buildTextButton(
             onPressed: () {
-              navigateAndFinish(context, LoginScreen());
+              navigateAndFinish(
+                  context,
+                  HomeScreen(
+                    selectedIndex: 3,
+                    loginOrReg: 'LOGIN',
+                  ));
             },
             txt: 'account?',
             context: context)

@@ -18,7 +18,7 @@ class VolunteerScreen extends StatelessWidget {
     screenHeight = getScreenHeight(context);
     screenWidth = getScreenWidth(context);
     return BlocProvider(
-      create: (BuildContext context) => VolunteerCubit(),
+      create: (BuildContext context) => VolunteerCubit()..onVolunteerInit(),
       child: BlocConsumer<VolunteerCubit, VolunteerStates>(
         listener: (context, state) {
           if (State is RequestFailed)

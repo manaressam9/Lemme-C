@@ -1,12 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:object_detection/layouts/home_screen/cubit/states.dart';
+import 'package:object_detection/modules/volunteer/ui/login/login_screen.dart';
 
 import 'package:object_detection/shared/constants.dart';
 
 import '../../../modules/currency_counter/currency_counter_screen.dart';
 import '../../../modules/object_det/object_detection_screen.dart';
-import '../../../modules/text_reader/camera_preview_scanner.dart';
+import '../../../modules/text_reader/text_reader_screen.dart';
 import '../../../modules/volunteer/data/firebase/user_firebase.dart';
 import '../../../modules/volunteer/ui/register/register_screen.dart';
 import '../../../modules/volunteer/ui/volunteer_screen/volunteer_screen.dart';
@@ -20,9 +22,19 @@ class HomeCubit extends Cubit<HomeStates> {
   final List<Widget> navPages = [
     ObjectDetection(),
     CurrencyCounter(),
-    CameraPreviewScanner(),
+    TextReaderScreen(),
     RegisterScreen()
   ];
+
+  navLoginOrReg(String logOrRegScreen) {
+    if (navPages[3] is! VolunteerScreen) {
+      if (logOrRegScreen == 'REGISTER')
+        navPages[3] = RegisterScreen();
+      else
+        navPages[3] = LoginScreen();
+    }
+  }
+
   final List<String> navLabels = [
     OBJ_MOD_LABEL,
     CURR_MOD_LABEL,
@@ -41,5 +53,6 @@ class HomeCubit extends Cubit<HomeStates> {
       navPages[navPages.length - 1] = VolunteerScreen();
       emit(HomeSignedInState());
     }
+
   }
 }
