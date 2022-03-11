@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Color MAIN_COLOR = Colors.redAccent;
+const Color MAIN_COLOR = Color.fromRGBO(3,124,250,1);
 const Color GREY_COLOR = Colors.grey;
 const Color BLACK_COLOR = Colors.black;
 const Color WHITE_COLOR = Colors.white;

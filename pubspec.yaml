@@ -64,8 +64,6 @@ dependencies:
  #location
   location: ^4.2.0
 
- #background speech to text - text to speech
-  background_stt: ^1.0.6
 
 
 dev_dependencies:

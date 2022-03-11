@@ -18,19 +18,24 @@ class LoginScreen extends StatelessWidget {
   double screenWidth = 0.0;
   RegisterStates globalState = RegisterInitState();
 
+  late RegisterCubit cubit;
 
   @override
   Widget build(BuildContext context) {
     screenHeight = getScreenHeight(context);
     screenWidth = getScreenWidth(context);
     return BlocProvider(
-      create: (context) => RegisterCubit(),
+      create: (context) => RegisterCubit()..onVolunteerInit(),
       child: BlocConsumer<RegisterCubit, RegisterStates>(
         listener: (context, state) {
           globalState = state;
+          if (globalState is RegisterSuccessState)
+            navigate(context, PhoneVerificationScreen(cubit, 'REGISTER'));
+          else if (globalState is RegisterErrorState)
+            showToast('Failed, try again');
         },
         builder: (context, state) {
-          RegisterCubit cubit = RegisterCubit.get(context);
+          cubit = RegisterCubit.get(context);
           return Scaffold(
             body: SingleChildScrollView(
               child: Padding(
@@ -82,7 +87,9 @@ class LoginScreen extends StatelessWidget {
   }
 
   buildLoginButton(BuildContext context, RegisterCubit cubit) {
-    return globalState is RegisterLoadingState
+    return globalState is PhoneFilteringLoadingState ||
+            globalState is PhoneAlreadyExist ||
+            globalState is PhoneVerificationLoading
         ? CircularProgressIndicator(
             strokeWidth: 2,
             color: BLACK_COLOR,
@@ -91,8 +98,10 @@ class LoginScreen extends StatelessWidget {
             onPressed: () async {
               cubit.phone = '+2' + _phoneNumController.text;
               if (_formKey.currentState!.validate()) {
-                await cubit.sendPhoneOtp(0);
-                navigate(context, PhoneVerificationScreen(cubit, "LOGIN"));
+                if (await cubit.isPhoneNumberExist())
+                  await cubit.sendPhoneOtp(0);
+                else
+                  showToast('This Phone is not exist!');
               }
             },
             txt: 'Login',
@@ -112,7 +121,6 @@ class LoginScreen extends StatelessWidget {
               navigateAndFinish(
                   context,
                   HomeScreen(
-                    selectedIndex: 3,
                     loginOrReg: 'REGISTER',
                   ));
             },

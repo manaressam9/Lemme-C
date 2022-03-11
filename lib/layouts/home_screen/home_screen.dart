@@ -2,50 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:object_detection/layouts/home_screen/cubit/cubit.dart';
 import 'package:object_detection/layouts/home_screen/cubit/states.dart';
-import 'package:object_detection/modules/volunteer/ui/login/login_screen.dart';
-import 'package:object_detection/modules/volunteer/ui/register/register_screen.dart';
+import 'package:object_detection/shared/constants.dart';
 
 import 'package:object_detection/shared/styles/icons.dart';
 import 'package:object_detection/strings/strings.dart';
-import 'package:object_detection/ui/camera_controller.dart';
 
 import '../../modules/volunteer/data/firebase/user_firebase.dart';
 import '../../shared/styles/colors.dart';
 
 class HomeScreen extends StatefulWidget {
-  final int selectedIndex;
+  static late HomeCubit cubit;
   final String loginOrReg;
 
-  const HomeScreen({this.selectedIndex = 0, this.loginOrReg = 'REGISTER'});
+  const HomeScreen({ this.loginOrReg = 'REGISTER'});
 
   @override
   State<HomeScreen> createState() =>
-      _HomeScreenState(selectedIndex, loginOrReg);
+      HomeScreenState( loginOrReg);
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int selectedIndex;
+class HomeScreenState extends State<HomeScreen> {
   String loginOrReg;
 
-  _HomeScreenState(this.selectedIndex, this.loginOrReg);
+  HomeScreenState( this.loginOrReg);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => HomeCubit()
-        ..checkRegistration()
-        ..navLoginOrReg(loginOrReg),
+        ..navLoginOrReg(loginOrReg)
+        ..checkRegistration(),
       child: BlocConsumer<HomeCubit, HomeStates>(
-        listener: (_, __) => {},
+        listener: (context, state) => {setState(() {})},
         builder: (context, state) {
-          HomeCubit cubit = HomeCubit.get(context);
+          HomeScreen.cubit = HomeCubit.get(context);
           return DefaultTabController(
             length: 4,
-            initialIndex: selectedIndex,
+            initialIndex: HomeScreen.cubit.selectedIndex,
             child: Scaffold(
               backgroundColor: PRIMARY_SWATCH,
               appBar: AppBar(
-                title: Text('Blind Assistant',style: TextStyle(fontFamily: BOLD_FONT),),
+                title: Text(
+                  'Blind Assistant',
+                  style: TextStyle(fontFamily: BOLD_FONT),
+                ),
                 titleSpacing: 20,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: 15.0),
@@ -55,41 +55,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 leadingWidth: 50,
                 actions: [
-                  selectedIndex == 3 && UserFirebase.isUserLogin()
+                     HomeScreen.cubit.selectedIndex == 3 &&  UserFirebase.isUserLogin()
                       ? IconButton(
                           onPressed: () {
                             {
-                              cubit.signOut();
+                              HomeScreen.cubit.signOut();
                             }
                           },
                           icon: Icon(Icons.logout))
                       : Container()
                 ],
-                bottom:const TabBar
-                  (
+                bottom: const TabBar(
                   tabs: [
-                  Tab(icon: Icon(CustomIcons.object)),
-                  Tab(icon:  Icon(CustomIcons.money)),
-                  Tab(icon: Icon(CustomIcons.document)),
-                  Tab(icon: Icon(CustomIcons.volunteer)),
-                ],
-                labelColor: MAIN_COLOR,
-                indicatorColor: BLACK_COLOR,
+                    Tab(icon: Icon(CustomIcons.object)),
+                    Tab(icon: Icon(CustomIcons.money)),
+                    Tab(icon: Icon(CustomIcons.document)),
+                    Tab(icon: Icon(CustomIcons.volunteer)),
+                  ],
+                  labelColor: MAIN_COLOR,
+                  indicatorColor: BLACK_COLOR,
                 ),
               ),
-              body:/* cubit.navPages[selectedIndex]*/
-              Padding(
+              body: /* cubit.navPages[selectedIndex]*/
+                  Padding(
                 padding: EdgeInsets.all(8),
-                  child: TabBarView(
-                    children:
-                      cubit.navPages,
-                  ),
-
+                child: TabBarView(
+                  children: HomeScreen.cubit.getTabs(),
+                ),
               ),
 
-
-
-             /* bottomNavigationBar: BottomNavigationBar(
+              /* bottomNavigationBar: BottomNavigationBar(
                 unselectedItemColor: GREY_COLOR,
                 selectedItemColor: BLACK_COLOR,
                 selectedIconTheme: IconThemeData(color: MAIN_COLOR),
@@ -119,12 +114,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    CameraControllerFactory.cameraControllers.clear();
-    super.dispose();
-  }
-
 }

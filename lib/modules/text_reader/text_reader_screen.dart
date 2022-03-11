@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/ui/camera_controller.dart';
 
+import '../../layouts/home_screen/home_screen.dart';
 import '../../shared/styles/colors.dart';
 import '../../strings/strings.dart';
 import '../../utils/tts_utils.dart';
@@ -37,6 +38,7 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
   void initState() {
     super.initState();
     TTS.speak(Text_MOD_LABEL);
+    HomeScreen.cubit.changeSelectedIndex(2);
     _initializeCamera();
   }
 

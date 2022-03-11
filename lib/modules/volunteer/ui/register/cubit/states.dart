@@ -21,6 +21,9 @@ class VerificationFailed extends RegisterStates{
 
 class RegisterSuccessState extends RegisterStates{}
 class VerificationSuccessState extends RegisterStates{}
+class PhoneAlreadyExist extends RegisterStates{}
+class PhoneNotExist extends RegisterStates{}
+class PhoneFilteringLoadingState extends RegisterStates{}
 
 class RegisterErrorState extends RegisterStates{
   final String errorMsg ;

@@ -5,6 +5,7 @@ import 'package:location/location.dart';
 import 'package:object_detection/modules/volunteer/ui/volunteer_screen/cubit/states.dart';
 import 'package:object_detection/shared/constants.dart';
 
+import '../../../../../layouts/home_screen/home_screen.dart';
 import '../../../../../strings/strings.dart';
 import '../../../../../utils/tts_utils.dart';
 import '../../../data/location/location_api.dart';
@@ -18,6 +19,7 @@ class VolunteerCubit extends Cubit<VolunteerStates> {
   onVolunteerInit ()
   {
     TTS.speak(VOLUNTEER_MOD_LABEL);
+    HomeScreen.cubit.changeSelectedIndex(3);
   }
 
   onVolunteerRequest() async {

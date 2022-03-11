@@ -21,16 +21,24 @@ class RegisterScreen extends StatelessWidget {
   double screenWidth = 0.0;
   RegisterStates globalState = RegisterInitState();
 
-
+  late RegisterCubit cubit;
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RegisterCubit()..onVolunteerInit(),
+      create: (context) =>
+      RegisterCubit()
+        ..onVolunteerInit(),
       child: BlocConsumer<RegisterCubit, RegisterStates>(
-        listener: (context, state) {},
-        builder: (context, state) {
-          RegisterCubit cubit = RegisterCubit.get(context);
+
+        listener: (context, state) {
           globalState = state;
+          if (globalState is RegisterSuccessState)
+            navigate(context, PhoneVerificationScreen(cubit, 'REGISTER'));
+          else if (globalState is RegisterErrorState)
+            showToast('Failed, try again');
+        },
+        builder: (context, state) {
+          cubit = RegisterCubit.get(context);
           screenHeight = getScreenHeight(context);
           screenWidth = getScreenWidth(context);
 
@@ -108,24 +116,25 @@ class RegisterScreen extends StatelessWidget {
           onSuffixPressed: cubit.changeIDVisibility,
         ),
         buildVerticalSpace(height: screenHeight / 25),
-        globalState is RegisterLoadingState
+        globalState is PhoneVerificationLoading
             ? CircularProgressIndicator(
-                strokeWidth: 2,
-                color: BLACK_COLOR,
-              )
+          strokeWidth: 2,
+          color: BLACK_COLOR,
+        )
             : buildDefaultBtn(
-                onPressed: () async {
-                  cubit.phone = '+2' + _phoneNumController.text;
-                  cubit.nationalId = _idController.text;
-                  cubit.fullName = _fullNameController.text;
-                  if (_formKey.currentState!.validate()) {
-                    await cubit.sendPhoneOtp(0);
-                    navigate(
-                        context, PhoneVerificationScreen(cubit, 'REGISTER'));
-                  }
-                },
-                txt: 'Sign up',
-                context: context),
+            onPressed: () async {
+              cubit.phone = '+2' + _phoneNumController.text;
+              cubit.nationalId = _idController.text;
+              cubit.fullName = _fullNameController.text;
+              if (_formKey.currentState!.validate()) {
+                if (!await cubit.isPhoneNumberExist())
+                  await cubit.sendPhoneOtp(0);
+                else
+                  showToast('This Phone is already exist!');
+              }
+            },
+            txt: 'Sign up',
+            context: context),
       ],
     );
   }
@@ -140,12 +149,13 @@ class RegisterScreen extends StatelessWidget {
         ),
         buildTextButton(
             onPressed: () {
-              navigateAndFinish(
+            /*  navigateAndFinish(
                   context,
                   HomeScreen(
                     selectedIndex: 3,
                     loginOrReg: 'LOGIN',
-                  ));
+                  ));*/
+              HomeScreen.cubit.changeTab(3, LoginScreen()) ;
             },
             txt: 'account?',
             context: context)

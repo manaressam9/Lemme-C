@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-import 'package:background_stt/background_stt.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:object_detection/layouts/home_screen/home_screen.dart';
 import 'package:object_detection/shared/constants.dart';
 import 'package:object_detection/strings/strings.dart';
 import 'package:object_detection/tflite/recognition.dart';
@@ -37,6 +37,7 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
   @override
   void initState() {
     TTS.speak(CURR_MOD_LABEL);
+    HomeScreen.cubit.changeSelectedIndex(1);
     super.initState();
   }
   @override

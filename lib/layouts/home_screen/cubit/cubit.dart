@@ -23,8 +23,24 @@ class HomeCubit extends Cubit<HomeStates> {
     ObjectDetection(),
     CurrencyCounter(),
     TextReaderScreen(),
-    RegisterScreen()
+   UserFirebase.isUserLogin() ?VolunteerScreen() : RegisterScreen()
   ];
+  int selectedIndex = 0;
+  List <Widget> getTabs ()
+   {
+     showToast('get tabs');
+     return navPages;
+   }
+  changeSelectedIndex (int index)
+  {
+    selectedIndex = index;
+    emit(HomeNavigateState());
+  }
+
+  void changeTab (int index,Widget screen){
+    navPages[3]= screen;
+    emit(HomeNavigateState());
+  }
 
   navLoginOrReg(String logOrRegScreen) {
     if (navPages[3] is! VolunteerScreen) {
@@ -50,7 +66,8 @@ class HomeCubit extends Cubit<HomeStates> {
 
   checkRegistration() async {
     if (await checkConnection() && UserFirebase.isUserLogin()) {
-      navPages[navPages.length - 1] = VolunteerScreen();
+      navPages[3] = VolunteerScreen();
+      showToast('connected and login');
       emit(HomeSignedInState());
     }
 

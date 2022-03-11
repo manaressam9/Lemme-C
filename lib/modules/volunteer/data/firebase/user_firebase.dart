@@ -51,6 +51,17 @@ class UserFirebase {
     }
   }
 
+  static isPhoneNumberExist(String phone) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapShot = await _fireStore
+          .collection(USERS_COLLECTION)
+          .where('phone', isEqualTo: phone)
+          .get();
+      if (snapShot.docs.isNotEmpty) return true;
+    } catch (e) {return false;}
+    return false;
+  }
+
   static Future<void> storeUserData(
       {required UserModel user, required String uId}) async {
     await _fireStore.collection(USERS_COLLECTION).doc(uId).set(user.toMap());

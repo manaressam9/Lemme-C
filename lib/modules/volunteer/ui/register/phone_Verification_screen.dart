@@ -172,8 +172,13 @@ class PhoneVerificationScreen extends StatelessWidget {
       showToast('auto verification : ${_cubit.smsCode}');
     } else if (state is PhoneCodeResentState)
       showToast('OTP is resent successfully');
-    else if (state is VerificationSuccessState)
-      navigateAndFinish(context, HomeScreen(selectedIndex: 3));
-    else if (state is VerificationFailed) showToast(state.errMessage);
+    else if (state is VerificationSuccessState) {
+      navigateAndFinish(context, HomeScreen());
+      showToast('Verified Successfully');
+    }
+    else if (state is RegisterErrorState){
+      {
+        showToast(state.errorMsg);
+      }
   }
-}
+}}
