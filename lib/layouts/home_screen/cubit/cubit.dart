@@ -26,30 +26,13 @@ class HomeCubit extends Cubit<HomeStates> {
    UserFirebase.isUserLogin() ?VolunteerScreen() : RegisterScreen()
   ];
   int selectedIndex = 0;
-  List <Widget> getTabs ()
-   {
-     showToast('get tabs');
-     return navPages;
-   }
+
   changeSelectedIndex (int index)
   {
     selectedIndex = index;
     emit(HomeNavigateState());
   }
 
-  void changeTab (int index,Widget screen){
-    navPages[3]= screen;
-    emit(HomeNavigateState());
-  }
-
-  navLoginOrReg(String logOrRegScreen) {
-    if (navPages[3] is! VolunteerScreen) {
-      if (logOrRegScreen == 'REGISTER')
-        navPages[3] = RegisterScreen();
-      else
-        navPages[3] = LoginScreen();
-    }
-  }
 
   final List<String> navLabels = [
     OBJ_MOD_LABEL,

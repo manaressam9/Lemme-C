@@ -46,8 +46,7 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
 
   Future<void> _initializeCamera() async {
     description = await ScannerUtils.getCamera(_direction);
-    await CameraControllerFactory.create(context, 2, onLatestImageAvailable);
-
+   // await CameraControllerFactory.create(context, 2, onLatestImageAvailable);
   }
 
   onLatestImageAvailable(CameraImage image) {
@@ -128,6 +127,7 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
       body: _buildImage(),
     );
   }
+
   @override
   void dispose() {
     // TODO: implement dispose

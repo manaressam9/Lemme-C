@@ -25,6 +25,9 @@ class VolunteerCubit extends Cubit<VolunteerStates> {
   onVolunteerRequest() async {
     emit(RequestLoading());
     await LocationApi.sendRealTimeLocationUpdates();
-    emit(LocationApi.requestState);
+   // emit(LocationApi.requestState);
   }
+
+
+
 }

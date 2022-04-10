@@ -79,7 +79,7 @@ class _ObjectDetectionState extends State<ObjectDetection> {
       return Container();
     }
 
-    flutterTts.setQueueMode(1);
+    flutterTts.awaitSpeakCompletion(true);
     results.forEach((element) async {
       await flutterTts.speak(element.label);
       //    await _service.speak(element.label, true);

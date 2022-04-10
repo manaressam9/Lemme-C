@@ -3,21 +3,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
 
 import 'package:object_detection/modules/volunteer/data/firebase/user_firebase.dart';
+import 'package:object_detection/modules/volunteer/ui/register/cubit/cubit.dart';
 import 'package:object_detection/shared/constants.dart';
 
 import '../../../../models/UserLocation.dart';
 import '../../../../models/Request.dart';
 import '../../../../models/User.dart';
-import '../../ui/volunteer_screen/cubit/states.dart';
+import '../../ui/register/cubit/states.dart';
 
 class LocationApi {
   static Location _location = new Location();
-  static VolunteerStates requestState = RequestFailed();
-
+  static RegisterStates requestState = RequestFailed();
   static Future<void> sendRealTimeLocationUpdates() async {
     if (await _checkServiceAvailability() && await _checkLocationPermission()) {
       _listenOnLocationChange();
+      showToast('Request is sent successfully');
     }
+
   }
 
   static Future<bool> _checkServiceAvailability() async {
@@ -38,7 +40,8 @@ class LocationApi {
 
   static StreamSubscription<LocationData>? _locationSubsrcibtion;
 
-  static void _listenOnLocationChange() {
+  static void _listenOnLocationChange()async {
+   await _location.changeSettings(distanceFilter: 10);
     _locationSubsrcibtion = _location.onLocationChanged.handleError((onError) {
       _locationSubsrcibtion!.cancel();
       _locationSubsrcibtion = null;
@@ -67,7 +70,7 @@ class LocationApi {
     _updateRequestObj(latitude!, longitude!);
     try {
       await UserFirebase.setRequestForAllVolunteers(request!);
-      requestState = RequestSucceeded();
+      //requestState = RequestSucceeded();
     } catch (e) {
       print(e.toString());
     }

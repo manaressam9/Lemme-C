@@ -189,22 +189,19 @@ Future<UserModel> getCurrentUser() async {
 const OBJECT_IMAGE_SIZE = 640;
 const CURR_IMAGE_SIZE = 512;
 
-
-
-
 //late List<CameraDescription> cameras;
 
 /// Controller
-/*CameraController? cameraController;
+CameraController? cameraController;
 
 createController(context, onLatestImageAvailable,
     {CameraDescription? description}) async {
-*//*  if (cameraController != null && cameraController!.value.isInitialized) {
+   if (cameraController != null && cameraController!.value.isInitialized) {
     await cameraController!.startImageStream(onLatestImageAvailable);
     return;
-  }*//*
+  }
 
-  cameras = await availableCameras();
+  List<CameraDescription> cameras = await availableCameras();
   // cameras[0] for rear-camera
 
   cameraController =
@@ -228,4 +225,4 @@ createController(context, onLatestImageAvailable,
   CameraViewSingleton.screenSize = screenSize;
   CameraViewSingleton.ratio = screenSize.width / previewSize.height;
   ;
-}*/
+}

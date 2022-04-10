@@ -8,7 +8,6 @@ import 'package:object_detection/shared/components.dart';
 import 'package:object_detection/strings/strings.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-
 import '../../../../shared/constants.dart';
 import '../../../../shared/styles/colors.dart';
 import '../volunteer_screen/volunteer_screen.dart';
@@ -17,14 +16,15 @@ import 'cubit/states.dart';
 
 class PhoneVerificationScreen extends StatelessWidget {
   final RegisterCubit _cubit;
-  final String previousScreenName ;
+  final String previousScreenName;
+
   double screenHeight = 0.0;
   double screenWidth = 0.0;
   String smsCode = '';
   TextEditingController pinController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  PhoneVerificationScreen(this._cubit,this.previousScreenName);
+  PhoneVerificationScreen(this._cubit, this.previousScreenName);
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +35,9 @@ class PhoneVerificationScreen extends StatelessWidget {
       create: (BuildContext context) => _cubit,
       child: BlocConsumer<RegisterCubit, RegisterStates>(
         listener: (context, state) {
-          handleState(context , state);
+          handleState(context, state);
         },
         builder: (context, state) {
-
           return Scaffold(
             backgroundColor: WHITE_COLOR,
             appBar: AppBar(
@@ -142,7 +141,13 @@ class PhoneVerificationScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                      buildVerticalSpace(height: 30),
+                      buildVerticalSpace(height: 15),
+                      if (state is! AutoVerificationTimeOut)
+                        CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: BLACK_COLOR,
+                        ),
+                      buildVerticalSpace(height: 15),
                       state is PhoneVerificationLoading
                           ? CircularProgressIndicator(
                               strokeWidth: 2,
@@ -151,7 +156,9 @@ class PhoneVerificationScreen extends StatelessWidget {
                           : buildDefaultBtn(
                               onPressed: () {
                                 if (_formKey.currentState!.validate())
-                                  previousScreenName == 'LOGIN'? _cubit.logIn() : _cubit.signUp()  ;
+                                  previousScreenName == 'LOGIN'
+                                      ? _cubit.logIn()
+                                      : _cubit.signUp();
                               },
                               txt: 'VERIFY',
                               context: context),
@@ -173,12 +180,13 @@ class PhoneVerificationScreen extends StatelessWidget {
     } else if (state is PhoneCodeResentState)
       showToast('OTP is resent successfully');
     else if (state is VerificationSuccessState) {
+      HomeScreen.cubit.selectedIndex = 3;
       navigateAndFinish(context, HomeScreen());
       showToast('Verified Successfully');
-    }
-    else if (state is RegisterErrorState){
+    } else if (state is RegisterErrorState) {
       {
         showToast(state.errorMsg);
       }
+    }
   }
-}}
+}

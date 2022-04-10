@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,6 +14,7 @@ import '../../../../../shared/constants.dart';
 import '../../../../../strings/strings.dart';
 import '../../../../../utils/tts_utils.dart';
 import '../../../data/firebase/user_firebase.dart';
+import '../../../data/location/location_api.dart';
 
 class RegisterCubit extends Cubit<RegisterStates> {
   RegisterCubit() : super(RegisterInitState());
@@ -22,6 +24,13 @@ class RegisterCubit extends Cubit<RegisterStates> {
   onVolunteerInit() {
     TTS.speak(VOLUNTEER_MOD_LABEL);
     HomeScreen.cubit.changeSelectedIndex(3);
+  }
+
+  String loginOrReg = 'REGISTER';
+
+  void switchRegLogin() {
+    loginOrReg = (loginOrReg == 'REGISTER') ? 'LOGIN' : 'REGISTER';
+    emit(LoginRegSwitch());
   }
 
   enterNextStage(RegisterStates stageState) {
@@ -43,11 +52,12 @@ class RegisterCubit extends Cubit<RegisterStates> {
     try {
       await UserFirebase.signIn(
           phone: phone,
+          onAutoVerification: onAutoVerification,
           onCodeSent: onCodeSentHandler,
-          onVerificationFailed: onVerificationFailed);
-      if (fromRegisterOrVerifyScreen == 0) //request from registerScreen
-        emit(RegisterSuccessState());
-      else
+          onVerificationFailed: onVerificationFailed,
+          onAutoVerificationTimeOut: onCodeAutoRetrievalTimeout
+      );
+      if (fromRegisterOrVerifyScreen != 0) //request from registerScreen
         emit(PhoneCodeResentState()); //request from phone verification screen
     } on FirebaseAuthException catch (err) {
       String errMessage = handleError(err.code);
@@ -112,9 +122,16 @@ class RegisterCubit extends Cubit<RegisterStates> {
   }
 
   onAutoVerification(PhoneAuthCredential phoneAuthCredential) async {
-    emit(PhoneAutoVerification());
     this.smsCode = phoneAuthCredential.smsCode ?? "";
-    await signUp(phoneAuthCredential: phoneAuthCredential);
+    emit(PhoneAutoVerification());
+    if (loginOrReg == 'REGISTER')
+      await signUp(phoneAuthCredential: phoneAuthCredential);
+    else
+      await logIn(phoneAuthCredential: phoneAuthCredential);
+  }
+
+  onCodeAutoRetrievalTimeout(String verificationId){
+    emit(AutoVerificationTimeOut());
   }
 
   onCodeSentHandler(String verificationId, int? resendToken) {
@@ -139,5 +156,19 @@ class RegisterCubit extends Cubit<RegisterStates> {
     idSecure = !idSecure;
     idSuffixIcon = idSecure ? Icons.remove_red_eye : Icons.visibility_off;
     emit(RegisterSecureVisibilityChangeState());
+  }
+
+  // volunteer screen
+  onVolunteerRequest() async {
+    emit(RequestLoading());
+    await LocationApi.sendRealTimeLocationUpdates();
+  }
+
+  onRequestFail ()
+  {
+    emit(RequestFailed());
+  }
+  onRequestSuccess() {
+    emit(RequestSucceeded());
   }
 }

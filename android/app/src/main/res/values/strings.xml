@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="MABBOX_SECRET_KEY">sk.eyJ1IjoibWluYS1hc2hyYWYiLCJhIjoiY2wxMmozeTJ0MDNzNjNqbXRrZnRoZjh0MyJ9.TMk-ivEvuIBYdKC2oOnuWQ</string>
+    <string name="MABBOX_PUBLIC_KEY" translatable="false" >pk.eyJ1IjoibWluYS1hc2hyYWYiLCJhIjoiY2wxMmk4aWIyMDdqOTNqczBwbDdxeG1qZSJ9.EeFIz6yWMJ_voNuZ6FnIZA</string>
+
+
+</resources>

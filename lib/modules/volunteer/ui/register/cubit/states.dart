@@ -12,6 +12,7 @@ class PhoneCodeSentState extends RegisterStates{}
 class PhoneCodeResentState extends RegisterStates{}
 class PhoneVerificationLoading extends RegisterStates{}
 class PhoneAutoVerification extends RegisterStates{}
+class AutoVerificationTimeOut extends RegisterStates{}
 class VerificationFailed extends RegisterStates{
   final String errMessage ;
 
@@ -35,3 +36,11 @@ class RegisterErrorState extends RegisterStates{
 //password visibility
 class RegisterSecureVisibilityChangeState extends RegisterStates {}
 class RegisterPositionVisibilityChangeState extends RegisterStates {}
+
+class LoginRegSwitch extends RegisterStates {}
+
+//volunteer screen
+class RequestLoading extends RegisterStates {}
+class RequestFailed extends RegisterStates{}
+class RequestSucceeded extends RegisterStates{}
+

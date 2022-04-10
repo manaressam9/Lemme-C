@@ -5,6 +5,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:object_detection/models/Request.dart';
 import 'package:object_detection/models/User.dart';
+import 'package:object_detection/modules/volunteer/data/location/location_api.dart';
+import 'package:object_detection/modules/volunteer/ui/register/cubit/states.dart';
+import 'package:object_detection/modules/volunteer/ui/register/register_screen.dart';
 import 'package:object_detection/shared/constants.dart';
 import 'package:object_detection/strings/strings.dart';
 
@@ -28,16 +31,17 @@ class UserFirebase {
   static Future<void> signIn(
       {required String phone,
       required onVerificationFailed(FirebaseAuthException e),
-      required onCodeSent(String verificationId, int? resendToken)}) async {
+      required onAutoVerification(PhoneAuthCredential phoneAuthCredential),
+      required onCodeSent(String verificationId, int? resendToken),
+      required onAutoVerificationTimeOut (String verificationId)
+      }) async {
     await _auth.verifyPhoneNumber(
       phoneNumber: '$phone',
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await signInWithCredential(credential);
-      },
+      verificationCompleted: onAutoVerification,
       verificationFailed: onVerificationFailed,
       codeSent: onCodeSent,
-      timeout: const Duration(seconds: 120),
-      codeAutoRetrievalTimeout: (String verificationId) {},
+      timeout: const Duration(seconds: 60),
+      codeAutoRetrievalTimeout: onAutoVerificationTimeOut,
     );
   }
 
@@ -58,7 +62,9 @@ class UserFirebase {
           .where('phone', isEqualTo: phone)
           .get();
       if (snapShot.docs.isNotEmpty) return true;
-    } catch (e) {return false;}
+    } catch (e) {
+      return false;
+    }
     return false;
   }
 
@@ -113,20 +119,19 @@ class UserFirebase {
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapShot =
           await _fireStore.collection(VOLUNTEERS_COLLECTION).get();
-      showToast('1');
       querySnapShot.docs.forEach((doc) async {
         try {
           await doc.reference
               .collection(REQUESTS_COLLECTION)
               .doc(getUid())
               .set(request.toMap());
+          RegisterScreen.cubit.onRequestSuccess();
         } catch (e) {
-          showToast(e.toString());
-          showToast('3');
+          RegisterScreen.cubit.onRequestFail();
         }
       });
     } on FirebaseException catch (e) {
-      showToast(e.message.toString());
+      RegisterScreen.cubit.onRequestFail();
     }
   }
 }

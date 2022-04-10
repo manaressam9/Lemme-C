@@ -8,8 +8,6 @@ import 'package:object_detection/strings/strings.dart';
 import 'package:object_detection/tflite/recognition.dart';
 import 'package:object_detection/tflite/stats.dart';
 import 'package:object_detection/ui/box_widget.dart';
-import 'package:object_detection/ui/camera_controller.dart';
-import 'package:object_detection/ui/camera_view_singleton.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../shared/styles/colors.dart';
@@ -82,9 +80,9 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
     }
 
     final FlutterTts flutterTts = FlutterTts();
+       flutterTts.awaitSpeakCompletion(true);
     results.forEach((element) async {
       String currency = element.label.replaceFirst("Egp", " Pounds");
-      await flutterTts.awaitSpeakCompletion(true);
       await flutterTts.speak(currency);
     });
     return Stack(

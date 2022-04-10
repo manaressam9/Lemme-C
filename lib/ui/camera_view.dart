@@ -75,23 +75,24 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     // Initially predicting = false
     predicting = false;
   }
-  /// Initializes the camera by setting [CameraControllerFactory.cameraControllers[index]]
+  /// Initializes the camera by setting [cameraController]
   Future<void >initializeCamera() async {
-    await CameraControllerFactory.create(context,index, onLatestImageAvailable);
+  //  await CameraControllerFactory.create(context,index, onLatestImageAvailable);
+    createController(context, onLatestImageAvailable);
   }
 
   @override
   Widget build(BuildContext context) {
     // Return empty container while the camera is not initialized
-    if (CameraControllerFactory.cameraControllers[index] == null || !CameraControllerFactory.cameraControllers[index]!.value.isInitialized) {
+    if (cameraController == null || !cameraController!.value.isInitialized) {
       return Container();
     }
 
     return Container(
       height: double.infinity,
       child: AspectRatio(
-          aspectRatio: CameraControllerFactory.cameraControllers[index]!.value.aspectRatio,
-          child: CameraPreview(CameraControllerFactory.cameraControllers[index]!)),
+          aspectRatio: cameraController!.value.aspectRatio,
+          child: CameraPreview(cameraController!)),
     );
   }
 

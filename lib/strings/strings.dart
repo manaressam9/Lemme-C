@@ -44,3 +44,6 @@ const CURR_DET_MODEL_PATH = 'models/currencyLite3_v1.300.tflite';
 //label files paths
 const OBJECT_DET_LABELS_PATH = 'labels/labelmap.txt';
 const CURR_DET_LABELS_PATH = 'labels/currencyLabels.txt';
+
+// mab box
+const MAPBOX_SECRET_KEY = 'sk.eyJ1IjoibWluYS1hc2hyYWYiLCJhIjoiY2wxMmozeTJ0MDNzNjNqbXRrZnRoZjh0MyJ9.TMk-ivEvuIBYdKC2oOnuWQ';

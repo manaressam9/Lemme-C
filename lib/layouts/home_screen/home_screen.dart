@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:object_detection/layouts/home_screen/cubit/cubit.dart';
 import 'package:object_detection/layouts/home_screen/cubit/states.dart';
+import 'package:object_detection/modules/volunteer/ui/register/register_screen.dart';
 import 'package:object_detection/shared/constants.dart';
 
 import 'package:object_detection/shared/styles/icons.dart';
@@ -14,24 +15,26 @@ class HomeScreen extends StatefulWidget {
   static late HomeCubit cubit;
   final String loginOrReg;
 
-  const HomeScreen({ this.loginOrReg = 'REGISTER'});
+  const HomeScreen({this.loginOrReg = 'REGISTER'});
 
   @override
-  State<HomeScreen> createState() =>
-      HomeScreenState( loginOrReg);
+  State<HomeScreen> createState() => HomeScreenState(loginOrReg);
 }
 
 class HomeScreenState extends State<HomeScreen> {
   String loginOrReg;
 
-  HomeScreenState( this.loginOrReg);
+  HomeScreenState(this.loginOrReg);
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeCubit()
-        ..navLoginOrReg(loginOrReg)
-        ..checkRegistration(),
+      create: (context) => HomeCubit(),
       child: BlocConsumer<HomeCubit, HomeStates>(
         listener: (context, state) => {setState(() {})},
         builder: (context, state) {
@@ -55,11 +58,14 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 leadingWidth: 50,
                 actions: [
-                     HomeScreen.cubit.selectedIndex == 3 &&  UserFirebase.isUserLogin()
+                  HomeScreen.cubit.selectedIndex == 3 &&
+                          UserFirebase.isUserLogin()
                       ? IconButton(
                           onPressed: () {
                             {
                               HomeScreen.cubit.signOut();
+                              HomeScreen.cubit.navPages[3] = RegisterScreen();
+                              setState(() {});
                             }
                           },
                           icon: Icon(Icons.logout))
@@ -80,7 +86,7 @@ class HomeScreenState extends State<HomeScreen> {
                   Padding(
                 padding: EdgeInsets.all(8),
                 child: TabBarView(
-                  children: HomeScreen.cubit.getTabs(),
+                  children: HomeScreen.cubit.navPages,
                 ),
               ),
 
