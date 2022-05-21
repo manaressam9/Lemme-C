@@ -116,12 +116,9 @@ class UserFirebase {
   }
 
   static Future<void> setRequestForAllVolunteers(Request request) async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapShot =
-          await _fireStore.collection(VOLUNTEERS_COLLECTION).get();
-      querySnapShot.docs.forEach((doc) async {
+
         try {
-          await doc.reference
+          await _fireStore
               .collection(REQUESTS_COLLECTION)
               .doc(getUid())
               .set(request.toMap());
@@ -129,9 +126,5 @@ class UserFirebase {
         } catch (e) {
           RegisterScreen.cubit.onRequestFail();
         }
-      });
-    } on FirebaseException catch (e) {
-      RegisterScreen.cubit.onRequestFail();
-    }
   }
 }
