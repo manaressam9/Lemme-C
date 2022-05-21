@@ -1,0 +1,55 @@
+buildscript {
+    ext.kotlin_version = '1.6.10'
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                // Do not change the username below.
+                // This should always be `mapbox` (not your username).
+                username = "mapbox"
+                // Use the secret token you stored in gradle.properties as the password
+                password = 'sk.eyJ1IjoibWluYS1hc2hyYWYiLCJhIjoiY2wxMmozeTJ0MDNzNjNqbXRrZnRoZjh0MyJ9.TMk-ivEvuIBYdKC2oOnuWQ'
+            }
+        }
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.10'
+    }
+}
+
+allprojects {
+/*
+        configurations.all {
+            resolutionStrategy {
+                force 'com.google.firebase:firebase-common:17.0.0'
+                force 'com.google.android.gms:play-services-basement:16.2.0'
+                force 'com.google.firebase:firebase-iid:16.0.0'
+                force 'com.google.firebase:firebase-auth:17.0.0'
+            }
+        }*/
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
