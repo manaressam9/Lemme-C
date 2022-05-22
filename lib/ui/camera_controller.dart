@@ -1,7 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../modules/text_reader/scanner_utils.dart';
 import 'camera_view_singleton.dart';
 
 class CameraControllerFactory {
@@ -19,9 +18,9 @@ class CameraControllerFactory {
     await cameraControllers[index]!.initialize();
 
 // Stream of image passed to [onLatestImageAvailable] callback
-   // if (index != 2)
+    // if (index != 2)
     await cameraControllers[index]!.startImageStream(onLatestImageAvailable);
-     /*else
+    /*else
          cameraControllers[index]!.takePicture();*/
     /// previewSize is size of each image frame captured by controller
     ///

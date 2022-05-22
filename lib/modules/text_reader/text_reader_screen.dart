@@ -8,9 +8,7 @@ import 'package:google_ml_vision/google_ml_vision.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/ui/camera_controller.dart';
-
 import '../../layouts/home_screen/home_screen.dart';
-import '../../shared/styles/colors.dart';
 import '../../strings/strings.dart';
 import '../../utils/tts_utils.dart';
 import 'detector_painters.dart';
@@ -46,7 +44,7 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
 
   Future<void> _initializeCamera() async {
     description = await ScannerUtils.getCamera(_direction);
-   // await CameraControllerFactory.create(context, 2, onLatestImageAvailable);
+    await CameraControllerFactory.create(context, 2, onLatestImageAvailable);
   }
 
   onLatestImageAvailable(CameraImage image) {

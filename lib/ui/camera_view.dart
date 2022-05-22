@@ -7,7 +7,6 @@ import 'package:object_detection/tflite/classifier.dart';
 import 'package:object_detection/tflite/recognition.dart';
 import 'package:object_detection/tflite/stats.dart';
 import 'package:object_detection/ui/camera_controller.dart';
-import 'package:object_detection/ui/camera_view_singleton.dart';
 import 'package:object_detection/utils/isolate_utils.dart';
 
 import '../shared/constants.dart';
@@ -77,22 +76,22 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   }
   /// Initializes the camera by setting [cameraController]
   Future<void >initializeCamera() async {
-  //  await CameraControllerFactory.create(context,index, onLatestImageAvailable);
-    createController(context, onLatestImageAvailable);
+    await CameraControllerFactory.create(context,index, onLatestImageAvailable);
+   // createController(context, onLatestImageAvailable);
   }
 
   @override
   Widget build(BuildContext context) {
     // Return empty container while the camera is not initialized
-    if (cameraController == null || !cameraController!.value.isInitialized) {
+    if (CameraControllerFactory.cameraControllers[index] == null || !CameraControllerFactory.cameraControllers[index]!.value.isInitialized) {
       return Container();
     }
 
     return Container(
       height: double.infinity,
       child: AspectRatio(
-          aspectRatio: cameraController!.value.aspectRatio,
-          child: CameraPreview(cameraController!)),
+          aspectRatio: CameraControllerFactory.cameraControllers[index]!.value.aspectRatio,
+          child: CameraPreview(CameraControllerFactory.cameraControllers[index]!)),
     );
   }
 
@@ -146,8 +145,5 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     var results = await responsePort.first;
     return results;
   }
-
-
-
 
 }
