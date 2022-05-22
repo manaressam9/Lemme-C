@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:background_location/background_location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
 
@@ -12,17 +13,32 @@ import '../../../../models/User.dart';
 import '../../ui/register/cubit/states.dart';
 
 class LocationApi {
-  static Location _location = new Location();
+ // static Location _location = new Location();
   static RegisterStates requestState = RequestFailed();
+
+
+
   static Future<void> sendRealTimeLocationUpdates() async {
-    if (await _checkServiceAvailability() && await _checkLocationPermission()) {
+   /* if (await _checkServiceAvailability() && await _checkLocationPermission()) {
       _listenOnLocationChange();
       showToast('Request is sent successfully');
     }
+*/
+    BackgroundLocation.setAndroidNotification(
+      title: "Notification title",
+      message: "Notification message",
+      icon: "@mipmap/ic_launcher",
+    );
+
+   await BackgroundLocation.setAndroidConfiguration(1000);
+    BackgroundLocation.startLocationService();
+    BackgroundLocation.getLocationUpdates((location)async {
+      await _updateUserLocation(location.latitude, location.longitude);
+    });
 
   }
 
-  static Future<bool> _checkServiceAvailability() async {
+  /*static Future<bool> _checkServiceAvailability() async {
     bool _serviceEnabled = await _location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await _location.requestService();
@@ -41,7 +57,7 @@ class LocationApi {
   static StreamSubscription<LocationData>? _locationSubsrcibtion;
 
   static void _listenOnLocationChange()async {
-   await _location.changeSettings(distanceFilter: 10);
+   await _location.changeSettings(accuracy:LocationAccuracy.high, distanceFilter: 10);
     _locationSubsrcibtion = _location.onLocationChanged.handleError((onError) {
       _locationSubsrcibtion!.cancel();
       _locationSubsrcibtion = null;
@@ -49,7 +65,7 @@ class LocationApi {
       await _updateUserLocation(locationData.latitude, locationData.longitude);
     });
   }
-
+*/
   static Request? request;
 
   static _updateRequestObj(double latitude, double longitude) async {

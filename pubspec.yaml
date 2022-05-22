@@ -63,9 +63,7 @@ dependencies:
 
  #location
   location: ^4.2.0
-
-
-
+  background_location: ^0.8.1
 
 
 dev_dependencies:
