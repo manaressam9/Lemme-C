@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'camera_view_singleton.dart';
 
 class CameraControllerFactory {
-  static List<CameraController?> cameraControllers = [null, null, null];
+  static List<CameraController?> cameraControllers = [null, null, null, null];
 
   static late List<CameraDescription> cameras;
 
@@ -18,7 +18,7 @@ class CameraControllerFactory {
     await cameraControllers[index]!.initialize();
 
 // Stream of image passed to [onLatestImageAvailable] callback
-    // if (index != 2)
+    if (index != 3)
     await cameraControllers[index]!.startImageStream(onLatestImageAvailable);
     /*else
          cameraControllers[index]!.takePicture();*/

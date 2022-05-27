@@ -35,7 +35,7 @@ dependencies:
   image: ^3.0.2
   path_provider: ^2.0.1
   image_picker: ^0.8.4+6
-  google_ml_vision: ^0.0.7
+  flutter_tesseract_ocr: ^0.4.19
   flutter_tts: ^3.3.3
 
   #cubit
@@ -88,6 +88,7 @@ flutter:
     - assets/images/
     - assets/models/
     - assets/labels/
+    - assets/tessdata/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

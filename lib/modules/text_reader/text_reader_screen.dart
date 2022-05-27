@@ -1,35 +1,42 @@
 // Copyright 2019 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+import 'dart:io';
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:google_ml_vision/google_ml_vision.dart';
+import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:object_detection/shared/constants.dart';
+import '../../ui/camera_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/ui/camera_controller.dart';
 import '../../layouts/home_screen/home_screen.dart';
 import '../../strings/strings.dart';
+import '../../utils/image_utils.dart';
 import '../../utils/tts_utils.dart';
-import 'detector_painters.dart';
-import 'scanner_utils.dart';
+import 'package:image/image.dart' as imageLib;
+import 'package:path_provider/path_provider.dart';
+
+
 
 class TextReaderScreen extends StatefulWidget {
   const TextReaderScreen({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _cameraControllerPreviewScannerState();
+  _cameraControllerPreviewScannerState createState() => _cameraControllerPreviewScannerState();
 }
 
 class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
-  dynamic _scanResults;
-  Detector? _currentDetector = Detector.text;
+  String _scanResults = '';
   bool _isDetecting = false;
-  CameraLensDirection _direction = CameraLensDirection.back;
+  bool tapped = false;
+  late XFile _PickedImage;
+  File? file ;
 
-  final TextRecognizer _recognizer = GoogleVision.instance.textRecognizer();
-
-//  CameraController? _cameraController;
   final FlutterTts flutterTts = FlutterTts();
 
   @override
@@ -39,99 +46,58 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
     HomeScreen.cubit.changeSelectedIndex(2);
     _initializeCamera();
   }
-
-  late CameraDescription description;
-
   Future<void> _initializeCamera() async {
-    description = await ScannerUtils.getCamera(_direction);
-    await CameraControllerFactory.create(context, 2, onLatestImageAvailable);
+    await CameraControllerFactory.create (context, 2, (CameraImage frame) async{
+      if (tapped = true){
+        tapped = false;
+      imageLib.Image? Imgframe = ImageUtils.convertCameraImage(frame);
+      if(Imgframe != null){
+      var bytes = Imgframe!.getBytes();
+      String tempPath = (await getTemporaryDirectory()).path;
+      setState(() {
+       file = File('$tempPath/temp.png');
+      });
+      await file!.writeAsBytes(
+      bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes));}
+    } });
+   // await CameraControllerFactory.create(context, 3, (frame){} );
+  /*  setState(() {
+
+    });*/
   }
 
-  onLatestImageAvailable(CameraImage image) {
-    if (_isDetecting) return;
-
-    _isDetecting = true;
-    ScannerUtils.detect(
-      image: image,
-      detectInImage: _recognizer.processImage,
-      imageRotation: description.sensorOrientation,
-    ).then(
-      (dynamic results) {
-        if (_currentDetector == null) return;
-        setState(() {
-          _scanResults = results;
-        });
-      },
-    ).whenComplete(() => Future.delayed(
-        Duration(
-          milliseconds: 100,
-        ),
-        () => {_isDetecting = false}));
-  }
-
-  Widget _buildResults() {
-    if (_scanResults == null ||
-        CameraControllerFactory.cameraControllers[2] == null ||
-        !CameraControllerFactory.cameraControllers[2]!.value.isInitialized) {
-      return Container();
-    }
-
-    CustomPainter painter;
-
-    final Size imageSize = Size(
-      CameraControllerFactory.cameraControllers[2]!.value.previewSize!.height,
-      CameraControllerFactory.cameraControllers[2]!.value.previewSize!.width,
-    );
-
-    if (_scanResults is! VisionText) return Container();
-    painter = TextDetectorPainter(imageSize, _scanResults);
-
-    return CustomPaint(
-      painter: painter,
-    );
-  }
-
-  Widget _buildImage() {
-    return Container(
-      constraints: const BoxConstraints.expand(),
-      child: /*_cameraController == null
-          ? const Center(
-        child: Text(
-          'Initializing Camera...',
-          style: TextStyle(
-            color: GREY_COLOR,
-            fontSize: 30,
-          ),
-        ),
-      )
-          :*/
-          Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          if (CameraControllerFactory.cameraControllers[2] != null)
-            ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: CameraPreview(
-                    CameraControllerFactory.cameraControllers[2]!)),
-          _buildResults(),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildImage(),
+      body: InkWell(onTap: () async{
+        tapped = true;
+        //_PickedImage = await CameraControllerFactory.cameraControllers[3]!.takePicture();
+       // showToast(_PickedImage.path);
+        if(file != null){
+       _scanResults  = await FlutterTesseractOcr.extractText(file!.path, language: 'ara+eng', args: {
+          "psm": "4",
+          "preserve_interword_spaces": "1",
+        });}
+        showToast( _scanResults);
+        print( _scanResults);
+      },
+        child: new Container(
+          height: double.infinity,
+          child:  CameraControllerFactory.cameraControllers[2] != null ? AspectRatio(
+            aspectRatio: CameraControllerFactory.cameraControllers[2]!.value.aspectRatio,
+            child: new CameraPreview(CameraControllerFactory.cameraControllers[2]!),
+          ): Container()
+        ),
+      ),
     );
   }
 
-  @override
+  /*@override
   void dispose() {
     // TODO: implement dispose
-    _recognizer.close();
     super.dispose();
-  }
+  }*/
 /* @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
