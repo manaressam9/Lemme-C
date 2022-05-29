@@ -61,8 +61,11 @@ dependencies:
   #pin code field
   pin_code_fields: ^7.3.0
 
- #location
+  #location
   location: ^4.2.0
+
+  #teseract for textRec
+  flutter_tesseract_ocr: ^0.4.20
 
 
 
@@ -88,6 +91,8 @@ flutter:
     - assets/images/
     - assets/models/
     - assets/labels/
+    - assets/tessdata/
+    - assets/tessdata_config.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
