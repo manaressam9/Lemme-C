@@ -234,10 +234,9 @@ void tts (String text , String languageCode , String voiceName , String audioEnc
   AudioPlayer _audioPlayer = AudioPlayer();
 
   void _playDemo() async {
-    //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: "LINEAR16");
     File file = await _service.textToSpeech(text:text , languageCode: languageCode, voiceName: voiceName , audioEncoding: audioEncoding);
     _audioPlayer.play(file.path, isLocal: true );
   }
   _playDemo();
 }
-//tts('اهلا ايمان محمد' , "ar-XA" , "ar-XA-Wavenet-B","LINEAR16");
+
