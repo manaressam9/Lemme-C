@@ -235,6 +235,26 @@ createController(context, onLatestImageAvailable,
 }
 
 //stt_function
+Future<String> stt(String language){
+  _AudioRecognizeState ob = new _AudioRecognizeState(language);
+  bool start = false;
+  int count = 0;
+  Future<String> text = '' as Future<String>;
+  PerfectVolumeControl.stream.listen((volume) {
+      if (!start) {
+        text = ob.streamingRecognize();
+      } else {
+        ob.stopRecording();
+      }
+      count++;
+      if (count == 2) {
+        start = !start;
+        count = 0;
+      }
+    });
+  return text;
+}
+
 class _AudioRecognizeState {
   final RecorderStream _recorder = RecorderStream();
   bool recognizing = false;
@@ -247,7 +267,7 @@ class _AudioRecognizeState {
 
   @override
   _AudioRecognizeState(String language) {
-    PerfectVolumeControl.stream.listen((volume) {
+    /*PerfectVolumeControl.stream.listen((volume) {
       if (!start) {
         streamingRecognize();
       } else {
@@ -260,7 +280,7 @@ class _AudioRecognizeState {
 
         recognizing = start;
       }
-    });
+    });*/
     _recorder.initialize();
   }
   
