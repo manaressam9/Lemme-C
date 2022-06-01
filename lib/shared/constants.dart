@@ -8,6 +8,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:object_detection/modules/volunteer/data/firebase//user_firebase.dart';
 
+import 'package:audioplayer/audioplayer.dart';
+import 'package:wavenet/wavenet.dart';
+
 import '../models/User.dart';
 import '../ui/camera_view_singleton.dart';
 import 'components.dart';
@@ -226,3 +229,15 @@ createController(context, onLatestImageAvailable,
   CameraViewSingleton.ratio = screenSize.width / previewSize.height;
   ;
 }
+void tts (String text , String languageCode , String voiceName , String audioEncoding){
+  TextToSpeechService _service = TextToSpeechService('AIzaSyDQwpnGuu5GG4-aVhqBEAxj8SU_zvRz_L8');
+  AudioPlayer _audioPlayer = AudioPlayer();
+
+  void _playDemo() async {
+    //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: "LINEAR16");
+    File file = await _service.textToSpeech(text:text , languageCode: languageCode, voiceName: voiceName , audioEncoding: audioEncoding);
+    _audioPlayer.play(file.path, isLocal: true );
+  }
+  _playDemo();
+}
+//tts('اهلا ايمان محمد' , "ar-XA" , "ar-XA-Wavenet-B","LINEAR16");
