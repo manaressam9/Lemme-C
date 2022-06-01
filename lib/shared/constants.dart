@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:object_detection/modules/volunteer/data/firebase//user_firebase.dart';
+
+import 'package:flutter/services.dart';
+import 'package:google_speech/google_speech.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:sound_stream/sound_stream.dart';
+import 'package:perfect_volume_control/perfect_volume_control.dart';
 
 import '../models/User.dart';
 import '../ui/camera_view_singleton.dart';
@@ -196,7 +203,7 @@ CameraController? cameraController;
 
 createController(context, onLatestImageAvailable,
     {CameraDescription? description}) async {
-   if (cameraController != null && cameraController!.value.isInitialized) {
+  if (cameraController != null && cameraController!.value.isInitialized) {
     await cameraController!.startImageStream(onLatestImageAvailable);
     return;
   }
@@ -226,3 +233,89 @@ createController(context, onLatestImageAvailable,
   CameraViewSingleton.ratio = screenSize.width / previewSize.height;
   ;
 }
+
+//stt_function
+class _AudioRecognizeState {
+  final RecorderStream _recorder = RecorderStream();
+  bool recognizing = false;
+  bool recognizeFinished = false;
+  String text = '';
+  StreamSubscription<List<int>>? _audioStreamSubscription;
+  BehaviorSubject<List<int>>? _audioStream;
+  bool start = false;
+  int count = 0;
+
+  @override
+  _AudioRecognizeState(String language) {
+    PerfectVolumeControl.stream.listen((volume) {
+      if (!start) {
+        streamingRecognize();
+      } else {
+        stopRecording();
+      }
+      count++;
+      if (count == 2) {
+        start = !start;
+        count = 0;
+
+        recognizing = start;
+      }
+    });
+    _recorder.initialize();
+  }
+  
+  get language => 'en_US';
+
+  //streaming recognize
+  Future<String> streamingRecognize() async {
+    _audioStream = BehaviorSubject<List<int>>();
+    _audioStreamSubscription = _recorder.audioStream.listen((event) {
+      _audioStream!.add(event);
+    });
+
+    await _recorder.start();
+
+    recognizing = true;
+
+    final serviceAccount = ServiceAccount.fromString((await rootBundle.loadString('assets/poised-team-347818-1953a9db53d2.json')));
+    final speechToText = SpeechToText.viaServiceAccount(serviceAccount);
+    final config = _getConfig();
+
+    final responseStream = speechToText.streamingRecognize(
+        StreamingRecognitionConfig(config: config, interimResults: true),
+        _audioStream!);
+
+    var responseText = '';
+
+    responseStream.listen((data) {
+      final currentText =
+          data.results.map((e) => e.alternatives.first.transcript).join('\n');
+
+      if (data.results.first.isFinal) {
+        responseText += '\n' + currentText;
+
+        text = responseText;
+        recognizeFinished = true;
+      } else {
+        text = responseText + '\n' + currentText;
+        recognizeFinished = true;
+      }
+    });
+    return text;
+  }
+
+  void stopRecording() async {
+    await _recorder.stop();
+    await _audioStreamSubscription?.cancel();
+    await _audioStream?.close();
+    recognizing = false;
+  }
+
+  RecognitionConfig _getConfig() => RecognitionConfig(
+      encoding: AudioEncoding.LINEAR16,
+      model: RecognitionModel.basic,
+      enableAutomaticPunctuation: true,
+      sampleRateHertz: 16000,
+      languageCode: this.language);
+}
+//language .. 'en_US' or 'ar'
