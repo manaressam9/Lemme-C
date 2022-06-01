@@ -230,7 +230,7 @@ createController(context, onLatestImageAvailable,
   ;
 }
 void tts (String text , String languageCode , String voiceName , String audioEncoding){
-  TextToSpeechService _service = TextToSpeechService('AIzaSyDQwpnGuu5GG4-aVhqBEAxj8SU_zvRz_L8');
+  TextToSpeechService _service = TextToSpeechService('API_key');
   AudioPlayer _audioPlayer = AudioPlayer();
 
   void _playDemo() async {
