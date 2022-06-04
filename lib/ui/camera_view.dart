@@ -20,11 +20,14 @@ class CameraView extends StatefulWidget {
   /// Callback to inference stats to [HomeView]
   final Function(Stats stats) statsCallback;
 
-  //module name
+  /// Module name
   final String moduleName;
 
+  /// Pause module controller
+  late int pauseModule;
+
   /// Constructor
-  const CameraView(this.resultsCallback, this.statsCallback, this.moduleName);
+  CameraView(this.resultsCallback, this.statsCallback, this.moduleName, this.pauseModule);
 
   @override
   _CameraViewState createState() => _CameraViewState(moduleName);
@@ -99,7 +102,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   onLatestImageAvailable(CameraImage cameraImage) async {
     if (classifier.interpreter != null && classifier.labels != null) {
       // If previous inference has not completed then return
-      if (predicting) {
+      if (widget.pauseModule == 1 || predicting) {
         return;
       }
 

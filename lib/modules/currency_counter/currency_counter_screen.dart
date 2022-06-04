@@ -30,10 +30,14 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
   /// Scaffold Key
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
+  /// Pause module controller
+  late int pauseModule;
+
   get infrenceResults => null;
     final FlutterTts flutterTts = FlutterTts();
   @override
   void initState() {
+    pauseModule = 0;
     TTS.speak(CURR_MOD_LABEL);
     HomeScreen.cubit.changeSelectedIndex(1);
     super.initState();
@@ -47,7 +51,7 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
 
           ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child:   CameraView(resultsCallback, statsCallback, CURR_MOD_LABEL)),
+              child:   CameraView(resultsCallback, statsCallback, CURR_MOD_LABEL, pauseModule)),
           // Bounding boxes
           boundingBoxes(results),
 
@@ -70,21 +74,42 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
               : Container()*/
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(pauseModule==0?Icons.pause_sharp:Icons.play_arrow_sharp),
+        onPressed: (){
+          setState(() {
+            pauseModule = (pauseModule+1)%2;
+          });
+          print(pauseModule==0?"Paused":"Play");
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   /// Returns Stack of bounding boxes
   Widget boundingBoxes(List<Recognition>? results) {
-    if (results == null) {
+    if (this.pauseModule ==1 || results == null) {
       return Container();
     }
 
     final FlutterTts flutterTts = FlutterTts();
-       flutterTts.awaitSpeakCompletion(true);
-    results.forEach((element) async {
-      String currency = element.label.replaceFirst("Egp", " Pounds");
-      await flutterTts.speak(currency);
+    flutterTts.awaitSpeakCompletion(true);
+
+    //Counting Notes and Calc AVG Score
+    int totalNotes = 0;
+    double avgScore = 0;
+    results.forEach((element) {
+      totalNotes += int.parse(element.label.substring(0,element.label.length-3));
+      avgScore += element.score;
     });
+    avgScore /= results.length;
+    flutterTts.speak(totalNotes.toString() + " Pounds");
+
+    // results.forEach((element) async {
+    //   String currency = element.label.replaceFirst("Egp", " Pounds");
+    //   await flutterTts.speak(currency);
+    // });
     return Stack(
       children: results
           .map((e) => BoxWidget(
