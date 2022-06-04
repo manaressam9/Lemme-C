@@ -80,11 +80,22 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
     }
 
     final FlutterTts flutterTts = FlutterTts();
-       flutterTts.awaitSpeakCompletion(true);
-    results.forEach((element) async {
-      String currency = element.label.replaceFirst("Egp", " Pounds");
-      await flutterTts.speak(currency);
+    flutterTts.awaitSpeakCompletion(true);
+
+    //Counting Notes and Calc AVG Score
+    int totalNotes = 0;
+    double avgScore = 0;
+    results.forEach((element) {
+      totalNotes += int.parse(element.label.substring(0,element.label.length-3));
+      avgScore += element.score;
     });
+    avgScore /= results.length;
+    flutterTts.speak(totalNotes.toString() + " Pounds");
+
+    // results.forEach((element) async {
+    //   String currency = element.label.replaceFirst("Egp", " Pounds");
+    //   await flutterTts.speak(currency);
+    // });
     return Stack(
       children: results
           .map((e) => BoxWidget(
