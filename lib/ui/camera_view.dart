@@ -79,7 +79,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   }
   /// Initializes the camera by setting [cameraController]
   Future<void >initializeCamera() async {
-    await CameraControllerFactory.create(context,index, onLatestImageAvailable);
+    await CameraControllerFactory.create(context,index, onLatestImageAvailable: onLatestImageAvailable);
    // createController(context, onLatestImageAvailable);
   }
 

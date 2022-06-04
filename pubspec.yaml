@@ -62,10 +62,14 @@ dependencies:
   #pin code field
   pin_code_fields: ^7.3.0
 
- #location
+  #location
   location: ^4.2.0
 
- #vibration
+
+  #teseract for textRec
+  flutter_tesseract_ocr: ^0.4.20
+
+  #vibration
   vibration: ^1.7.4-nullsafety.0
 
 
@@ -89,6 +93,8 @@ flutter:
     - assets/images/
     - assets/models/
     - assets/labels/
+    - assets/tessdata/
+    - assets/tessdata_config.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
