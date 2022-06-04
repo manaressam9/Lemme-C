@@ -258,6 +258,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.6"
+  flutter_tesseract_ocr:
+    dependency: "direct main"
+    description:
+      name: flutter_tesseract_ocr
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.20"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -609,6 +616,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.2"
+  vibration:
+    dependency: "direct main"
+    description:
+      name: vibration
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.7.4-nullsafety.0"
+  vibration_web:
+    dependency: transitive
+    description:
+      name: vibration_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.6.3-nullsafety.0"
   wavenet:
     dependency: "direct main"
     description:
