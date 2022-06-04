@@ -32,6 +32,9 @@ class _ObjectDetectionState extends State<ObjectDetection> {
   /// Realtime stats
   Stats? stats;
 
+  /// Pause module controller
+  late int pauseModule;
+  
   /// Object Name to find
   String? objName;
 
@@ -44,6 +47,7 @@ class _ObjectDetectionState extends State<ObjectDetection> {
 
   @override
   void initState() {
+    pauseModule = 0;
     objName = "";
     objArea = 0.0;
     TTS.speak(OBJ_MOD_LABEL);
@@ -59,7 +63,7 @@ class _ObjectDetectionState extends State<ObjectDetection> {
           // Camera View
           ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child: CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL)),
+              child: CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL, pauseModule)),
           // Bounding boxes
           boundingBoxes(results),
 
@@ -81,12 +85,22 @@ class _ObjectDetectionState extends State<ObjectDetection> {
               : Container()*/
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(pauseModule==0?Icons.pause_sharp:Icons.play_arrow_sharp),
+        onPressed: (){
+          setState(() {
+            pauseModule = (pauseModule+1)%2;
+          });
+          print(pauseModule==0?"Paused":"Play");
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   /// Returns Stack of bounding boxes
   Widget boundingBoxes(List<Recognition>? results) {
-    if (results == null) {
+    if (this.pauseModule == 1 || results == null) {
       return Container();
     }
 
