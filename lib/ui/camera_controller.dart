@@ -1,7 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../modules/text_reader/scanner_utils.dart';
 import 'camera_view_singleton.dart';
 
 class CameraControllerFactory {
@@ -13,6 +12,7 @@ class CameraControllerFactory {
       BuildContext context, int index, onLatestImageAvailable,
       {CameraDescription? description}) async {
     cameras = await availableCameras();
+
     cameraControllers[index] =
         CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
     //  }
@@ -39,4 +39,6 @@ class CameraControllerFactory {
 
     return cameraControllers[index];
   }
+
+
 }

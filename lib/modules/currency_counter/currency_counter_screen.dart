@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/layouts/home_screen/home_screen.dart';
 import 'package:object_detection/shared/constants.dart';
@@ -10,17 +7,21 @@ import 'package:object_detection/tflite/stats.dart';
 import 'package:object_detection/ui/box_widget.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
-import '../../shared/styles/colors.dart';
 import '../../ui/camera_view.dart';
 import '../../utils/tts_utils.dart';
 
 /// [HomeView] stacks [CameraView] and [BoxWidget]s with bottom sheet for stats
 class CurrencyCounter extends StatefulWidget {
+  //static CameraView? cameraView;
+
+  const CurrencyCounter({Key? key}) : super(key: key);
+
   @override
   _CurrencyCounterState createState() => _CurrencyCounterState();
 }
 
-class _CurrencyCounterState extends State<CurrencyCounter> {
+class _CurrencyCounterState extends State<CurrencyCounter>
+    with WidgetsBindingObserver {
   /// Results to draw bounding boxes
   List<Recognition>? results;
 
@@ -31,13 +32,35 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
   get infrenceResults => null;
-    final FlutterTts flutterTts = FlutterTts();
+  final FlutterTts flutterTts = FlutterTts();
+
   @override
   void initState() {
+    super.initState();
     TTS.speak(CURR_MOD_LABEL);
     HomeScreen.cubit.changeSelectedIndex(1);
-    super.initState();
+    //CurrencyCounter.cameraView = CameraView(resultsCallback, statsCallback, CURR_MOD_LABEL);
   }
+
+/*  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // App state changed before we got the chance to initialize.
+    if (cameraController == null || !cameraController!.value.isInitialized) {
+      return;
+    }
+    if (state == AppLifecycleState.inactive) {
+      // Free up memory when camera not active
+      cameraController!.dispose();
+    }
+    super.didChangeAppLifecycleState(state);
+  }*/
+
+/*  void dispose() {
+    // TODO: implement dispose
+    cameraController!.dispose();
+    super.dispose();
+  }*/
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,11 +70,12 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
 
           ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child:   CameraView(resultsCallback, statsCallback, CURR_MOD_LABEL)),
+              child:
+                  CameraView(resultsCallback, statsCallback, CURR_MOD_LABEL)),
           // Bounding boxes
           boundingBoxes(results),
 
-         /* (stats != null)
+          /* (stats != null)
               ? Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
@@ -80,7 +104,7 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
     }
 
     final FlutterTts flutterTts = FlutterTts();
-       flutterTts.awaitSpeakCompletion(true);
+    flutterTts.awaitSpeakCompletion(true);
     results.forEach((element) async {
       String currency = element.label.replaceFirst("Egp", " Pounds");
       await flutterTts.speak(currency);
@@ -96,23 +120,23 @@ class _CurrencyCounterState extends State<CurrencyCounter> {
 
   /// Callback to get inference results from [CameraView]
   void resultsCallback(List<Recognition>? results) {
-    setState(() {
-      this.results = results;
-    });
+    if (mounted)
+      setState(() {
+        this.results = results;
+      });
   }
 
   /// Callback to get inference stats from [CameraView]
   void statsCallback(Stats stats) {
-    setState(() {
-      this.stats = stats;
-    });
+    if (mounted)
+      setState(() {
+        this.stats = stats;
+      });
   }
 
   static const BOTTOM_SHEET_RADIUS = Radius.circular(24.0);
   static const BORDER_RADIUS_BOTTOM_SHEET = BorderRadius.only(
       topLeft: BOTTOM_SHEET_RADIUS, topRight: BOTTOM_SHEET_RADIUS);
-
-
 }
 
 /// Row for one Stats field

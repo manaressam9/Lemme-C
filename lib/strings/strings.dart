@@ -22,6 +22,7 @@ const LIGHT_FONT = 'RowdiesLight';
 const USERS_COLLECTION = 'Users';
 const VOLUNTEERS_COLLECTION = 'Volunteers';
 const REQUESTS_COLLECTION = 'Requests';
+const RESPONSES_COLLECTION = 'Responses';
 
 //images
 const GLASSES_IMG = 'assets/images/glasses.png';
@@ -45,5 +46,12 @@ const CURR_DET_MODEL_PATH = 'models/currencyLite3_v1.300.tflite';
 const OBJECT_DET_LABELS_PATH = 'labels/labelmap.txt';
 const CURR_DET_LABELS_PATH = 'labels/currencyLabels.txt';
 
+// shared preferences key
+const REQUEST_SENT_FLAG = "requestFlag";
+
 // mab box
 const MAPBOX_SECRET_KEY = 'sk.eyJ1IjoibWluYS1hc2hyYWYiLCJhIjoiY2wxMmozeTJ0MDNzNjNqbXRrZnRoZjh0MyJ9.TMk-ivEvuIBYdKC2oOnuWQ';
+
+const REQUEST_STATE_ACCEPTED = 'accepted';
+const PREFERENCE_RESPONSE_KEY = 'responseKey';
+

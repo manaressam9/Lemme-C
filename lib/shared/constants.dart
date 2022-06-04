@@ -4,22 +4,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:object_detection/modules/volunteer/data/firebase//user_firebase.dart';
+import 'package:object_detection/ui/camera_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/User.dart';
 import '../ui/camera_view_singleton.dart';
-import 'components.dart';
 
 const MAX_HEIGHT = .0;
 
 double getScreenHeight(context) {
-  return MediaQuery.of(context).size.height;
+  return MediaQuery
+      .of(context)
+      .size
+      .height;
 }
 
 double getScreenWidth(context) {
-  return MediaQuery.of(context).size.width;
+  return MediaQuery
+      .of(context)
+      .size
+      .width;
 }
 
 showToast(String msg, {Toast duration = Toast.LENGTH_SHORT}) {
@@ -36,7 +44,7 @@ showToast(String msg, {Toast duration = Toast.LENGTH_SHORT}) {
 void navigateAndFinish(BuildContext context, Widget screen) {
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute(builder: (_) => screen),
-    (route) => false, //if you want to disable back feature set to false
+        (route) => false, //if you want to disable back feature set to false
   );
 }
 
@@ -75,14 +83,14 @@ String handleError(String errCode) {
   switch (errCode) {
     case 'ERROR_EMAIL_ALREADY_IN_USE':
       errMessage =
-          "This e-mail address is already in use, please use a different e-mail address.";
+      "This e-mail address is already in use, please use a different e-mail address.";
       break;
     case 'ERROR_INVALID_EMAIL':
       errMessage = "The email address is badly formatted.";
       break;
     case 'ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL':
       errMessage =
-          "The e-mail address has been registered in the system before. ";
+      "The e-mail address has been registered in the system before. ";
       break;
     case 'user-not-found':
       errMessage = 'No user found for that email. ';
@@ -103,6 +111,14 @@ String handleError(String errCode) {
 final FirebaseFirestore myFireStore = FirebaseFirestore.instance;
 
 final FirebaseStorage myStorage = FirebaseStorage.instance;
+
+SharedPreferences? _preferences;
+
+Future<SharedPreferences> getPreference() async {
+  if (_preferences == null)
+    _preferences = await SharedPreferences.getInstance();
+  return _preferences!;
+}
 
 UserModel generalUser = UserModel.fromUser();
 
@@ -191,16 +207,12 @@ const CURR_IMAGE_SIZE = 512;
 
 //late List<CameraDescription> cameras;
 
+
 /// Controller
 CameraController? cameraController;
 
-createController(context, onLatestImageAvailable,
+createControllerafterDisposing(context, onLatestImageAvailable,
     {CameraDescription? description}) async {
-   if (cameraController != null && cameraController!.value.isInitialized) {
-    await cameraController!.startImageStream(onLatestImageAvailable);
-    return;
-  }
-
   List<CameraDescription> cameras = await availableCameras();
   // cameras[0] for rear-camera
 
@@ -221,8 +233,48 @@ createController(context, onLatestImageAvailable,
 
 // the display width of image on screen is
 // same as screenWidth while maintaining the aspectRatio
-  Size screenSize = MediaQuery.of(context).size;
+  Size screenSize = MediaQuery
+      .of(context)
+      .size;
   CameraViewSingleton.screenSize = screenSize;
   CameraViewSingleton.ratio = screenSize.width / previewSize.height;
   ;
+}
+
+Future<void> createController(context, onLatestImageAvailable,
+    {CameraDescription? description}) async {
+  if (cameraController != null && cameraController!.value.isInitialized) {
+    await cameraController!.startImageStream(onLatestImageAvailable);
+  } else {
+    List<CameraDescription> cameras = await availableCameras();
+    // cameras[0] for rear-camera
+
+    cameraController =
+        CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
+    await cameraController!.initialize();
+
+// Stream of image passed to [onLatestImageAvailable] callback
+    await cameraController!.startImageStream(onLatestImageAvailable);
+
+    /// previewSize is size of each image frame captured by controller
+    ///
+    /// 352x288 on iOS, 240p (320x240) on Android with ResolutionPreset.low
+    Size previewSize = cameraController!.value.previewSize!;
+
+    /// previewSize is size of raw input image to the model
+    CameraViewSingleton.inputImageSize = previewSize;
+
+// the display width of image on screen is
+// same as screenWidth while maintaining the aspectRatio
+    Size screenSize = MediaQuery
+        .of(context)
+        .size;
+    CameraViewSingleton.screenSize = screenSize;
+    CameraViewSingleton.ratio = screenSize.width / previewSize.height;
+    ;
+  }
+}
+
+void directPhoneCall(String phoneNumber) async {
+  await FlutterPhoneDirectCaller.callNumber(phoneNumber);
 }

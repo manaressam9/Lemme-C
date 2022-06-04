@@ -5,12 +5,10 @@
 import 'package:camera/camera.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_ml_vision/google_ml_vision.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/ui/camera_controller.dart';
 
 import '../../layouts/home_screen/home_screen.dart';
-import '../../shared/styles/colors.dart';
 import '../../strings/strings.dart';
 import '../../utils/tts_utils.dart';
 import 'detector_painters.dart';
@@ -23,7 +21,7 @@ class TextReaderScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _cameraControllerPreviewScannerState();
 }
 
-class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
+class _cameraControllerPreviewScannerState extends State<TextReaderScreen> with WidgetsBindingObserver {
   dynamic _scanResults;
   Detector? _currentDetector = Detector.text;
   bool _isDetecting = false;
@@ -134,6 +132,10 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
     _recognizer.close();
     super.dispose();
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 /* @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {

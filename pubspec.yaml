@@ -52,6 +52,13 @@ dependencies:
   firebase_messaging: ^11.2.6
   firebase_storage: ^10.2.6
 
+ #local data save
+  shared_preferences: ^2.0.15
+
+ # direct phone call
+  flutter_phone_direct_caller: ^2.1.1
+
+
   #date format
   intl: ^0.17.0
 

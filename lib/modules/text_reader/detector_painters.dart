@@ -2,12 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:ui' as ui;
-import 'dart:math';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_ml_vision/google_ml_vision.dart';
 import 'package:flutter/material.dart';
-import 'package:object_detection/shared/constants.dart';
 
 enum Detector {
   text,

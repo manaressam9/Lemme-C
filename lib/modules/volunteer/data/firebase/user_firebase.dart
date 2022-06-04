@@ -5,11 +5,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:object_detection/models/Request.dart';
 import 'package:object_detection/models/User.dart';
-import 'package:object_detection/modules/volunteer/data/location/location_api.dart';
-import 'package:object_detection/modules/volunteer/ui/register/cubit/states.dart';
-import 'package:object_detection/modules/volunteer/ui/register/register_screen.dart';
+import 'package:object_detection/modules/volunteer/ui/volunteer_request/cubit/cubit.dart';
 import 'package:object_detection/shared/constants.dart';
 import 'package:object_detection/strings/strings.dart';
+
 
 class UserFirebase {
   static final _auth = FirebaseAuth.instance;
@@ -33,8 +32,7 @@ class UserFirebase {
       required onVerificationFailed(FirebaseAuthException e),
       required onAutoVerification(PhoneAuthCredential phoneAuthCredential),
       required onCodeSent(String verificationId, int? resendToken),
-      required onAutoVerificationTimeOut (String verificationId)
-      }) async {
+      required onAutoVerificationTimeOut(String verificationId)}) async {
     await _auth.verifyPhoneNumber(
       phoneNumber: '$phone',
       verificationCompleted: onAutoVerification,
@@ -115,16 +113,25 @@ class UserFirebase {
     await _fireStore.collection(USERS_COLLECTION).doc(uId).update({key: value});
   }
 
-  static Future<void> setRequestForAllVolunteers(Request request) async {
+  static Future<void> setRequestForAllVolunteers(Request request,VolunteerRequestCubit cubit) async {
+    await _fireStore
+        .collection(REQUESTS_COLLECTION)
+        .doc(getUid())
+        .set(request.toMap());
+    final preference = await getPreference();
+    preference.setBool(REQUEST_SENT_FLAG, true);
+    cubit.onRequestSuccess();
+  }
 
-        try {
-          await _fireStore
-              .collection(REQUESTS_COLLECTION)
-              .doc(getUid())
-              .set(request.toMap());
-          RegisterScreen.cubit.onRequestSuccess();
-        } catch (e) {
-          RegisterScreen.cubit.onRequestFail();
-        }
+  static Stream<DocumentSnapshot<Map<String, dynamic>>> listenOnMyRequest() {
+    return _fireStore.collection(REQUESTS_COLLECTION).doc(getUid()).snapshots();
+  }
+
+  static Stream<DocumentSnapshot<Map<String, dynamic>>> listenOnMyResponse(
+      String responseId) {
+    return _fireStore
+        .collection(RESPONSES_COLLECTION)
+        .doc(responseId)
+        .snapshots();
   }
 }
