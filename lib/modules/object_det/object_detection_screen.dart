@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -15,6 +16,8 @@ import 'package:object_detection/utils/tts_utils.dart';
 import '../../ui/camera_controller.dart';
 import '../../ui/camera_view.dart';
 import '../currency_counter/currency_counter_screen.dart';
+import 'package:vibration/vibration.dart';
+
 
 /// [HomeView] stacks [CameraView] and [BoxWidget]s with bottom sheet for stats
 class ObjectDetection extends StatefulWidget {
@@ -29,12 +32,20 @@ class _ObjectDetectionState extends State<ObjectDetection> {
   /// Realtime stats
   Stats? stats;
 
+  /// Object Name to find
+  String? objName;
+
+  /// Tack Object Area
+  late double objArea;
+
   /// Scaffold Key
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   final FlutterTts flutterTts = FlutterTts();
 
   @override
   void initState() {
+    objName = "";
+    objArea = 0.0;
     TTS.speak(OBJ_MOD_LABEL);
     HomeScreen.cubit.changeSelectedIndex(0);
     super.initState();
@@ -99,6 +110,20 @@ class _ObjectDetectionState extends State<ObjectDetection> {
     setState(() {
       this.results = results;
     });
+
+    /// depend on chosen resolution [high = 1280*720]
+    double screenArea = 1280 * 720;
+    if(results != null && objName!= null && objName!.isNotEmpty){
+      setState(() {
+        results.retainWhere((element) => element.label==objName!.toLowerCase());
+      });
+      results.forEach((element) {
+        objArea = element.location!.width * element.location!.height;
+        double ratio = objArea/screenArea;
+        showToast((ratio*100).toStringAsFixed(2));
+        Vibration.vibrate(amplitude: 255, duration: (ratio*5000).toInt());
+      });
+    }
   }
 
   /// Callback to get inference stats from [CameraView]

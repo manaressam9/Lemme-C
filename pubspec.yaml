@@ -65,8 +65,8 @@ dependencies:
  #location
   location: ^4.2.0
 
-
-
+ #vibration
+  vibration: ^1.7.4-nullsafety.0
 
 
 dev_dependencies:
