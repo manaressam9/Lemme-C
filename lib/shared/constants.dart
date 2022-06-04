@@ -231,7 +231,7 @@ createController(context, onLatestImageAvailable,
 }
 
 //tts_function
-void tts (String text , String languageCode , String voiceName){
+void tts (String text , String languageCode , String voiceName)async{
   TextToSpeechService _service = TextToSpeechService('API_KEY');
   AudioPlayer _audioPlayer = AudioPlayer();
   //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: );
