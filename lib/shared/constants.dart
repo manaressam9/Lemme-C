@@ -235,8 +235,8 @@ createController(context, onLatestImageAvailable,
 }
 
 //stt_function
-Future<String> stt(String language){
-  _AudioRecognizeState ob = new _AudioRecognizeState(language);
+statc _AudioRecognizeState ob = new _AudioRecognizeState(language);
+Future<String> stt (String lang){
   bool start = false;
   int count = 0;
   Future<String> text = '' as Future<String>;
@@ -252,7 +252,6 @@ Future<String> stt(String language){
         count = 0;
       }
     });
-  return text;
 }
 
 class _AudioRecognizeState {
