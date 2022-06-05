@@ -2,33 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:object_detection/layouts/home_screen/cubit/cubit.dart';
 import 'package:object_detection/layouts/home_screen/cubit/states.dart';
-import 'package:object_detection/modules/volunteer/ui/register/register_screen.dart';
+import 'package:object_detection/modules/currency_counter/currency_counter_screen.dart';
+import 'package:object_detection/modules/object_det/object_detection_screen.dart';
 import 'package:object_detection/shared/constants.dart';
 
 import 'package:object_detection/shared/styles/icons.dart';
 import 'package:object_detection/strings/strings.dart';
 
 import '../../modules/volunteer/data/firebase/user_firebase.dart';
+import '../../modules/volunteer/ui/volunteer_request/volunteer_request_screen.dart';
 import '../../shared/styles/colors.dart';
 
 class HomeScreen extends StatefulWidget {
   static late HomeCubit cubit;
   final String loginOrReg;
+  final bool verified;
 
-  const HomeScreen({this.loginOrReg = 'REGISTER'});
+  const HomeScreen({this.loginOrReg = 'REGISTER', this.verified = false});
 
   @override
-  State<HomeScreen> createState() => HomeScreenState(loginOrReg);
+  State<HomeScreen> createState() => HomeScreenState(loginOrReg, verified);
 }
 
-class HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   String loginOrReg;
+  bool verified;
 
-  HomeScreenState(this.loginOrReg);
+  HomeScreenState(this.loginOrReg, this.verified);
+
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(vsync: this, initialIndex: 0, length: 4);
+    if (verified) _tabController.animateTo(3);
+
+    _tabController.addListener(() {
+      if (_tabController.index == 0 || _tabController.index == 1)
+        cameraController!.stopImageStream();
+      /*   if (_tabController.index == 0) {
+        showToast(_tabController.index.toString());
+        ObjectDetection.cameraView?.initializeCamera();
+      }
+      else if (_tabController.index == 1)
+        {
+          showToast(_tabController.index.toString());
+          CurrencyCounter.cameraView?.initializeCamera();
+        }*/
+    });
   }
 
   @override
@@ -39,85 +62,83 @@ class HomeScreenState extends State<HomeScreen> {
         listener: (context, state) => {setState(() {})},
         builder: (context, state) {
           HomeScreen.cubit = HomeCubit.get(context);
-          return DefaultTabController(
-            length: 4,
-            initialIndex: HomeScreen.cubit.selectedIndex,
-            child: Scaffold(
-              backgroundColor: PRIMARY_SWATCH,
-              appBar: AppBar(
-                title: Text(
-                  'Blind Assistant',
-                  style: TextStyle(fontFamily: BOLD_FONT),
-                ),
-                titleSpacing: 20,
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: 15.0),
-                  child: Image(
-                    image: AssetImage(GLASSES_IMG),
-                  ),
-                ),
-                leadingWidth: 50,
-                actions: [
-                  HomeScreen.cubit.selectedIndex == 3 &&
-                          UserFirebase.isUserLogin()
-                      ? IconButton(
-                          onPressed: () {
-                            {
-                              HomeScreen.cubit.signOut();
-                              HomeScreen.cubit.navPages[3] = RegisterScreen();
-                              setState(() {});
-                            }
-                          },
-                          icon: Icon(Icons.logout))
-                      : Container()
-                ],
-                bottom: const TabBar(
-                  tabs: [
-                    Tab(icon: Icon(CustomIcons.object)),
-                    Tab(icon: Icon(CustomIcons.money)),
-                    Tab(icon: Icon(CustomIcons.document)),
-                    Tab(icon: Icon(CustomIcons.volunteer)),
-                  ],
-                  labelColor: MAIN_COLOR,
-                  indicatorColor: BLACK_COLOR,
+          return Scaffold(
+            backgroundColor: PRIMARY_SWATCH,
+            appBar: AppBar(
+              title: Text(
+                'Blind Assistant',
+                style: TextStyle(fontFamily: BOLD_FONT),
+              ),
+              titleSpacing: 20,
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 15.0),
+                child: Image(
+                  image: AssetImage(GLASSES_IMG),
                 ),
               ),
-              body: /* cubit.navPages[selectedIndex]*/
-                  Padding(
-                padding: EdgeInsets.all(8),
-                child: TabBarView(
-                  children: HomeScreen.cubit.navPages,
-                ),
-              ),
-
-              /* bottomNavigationBar: BottomNavigationBar(
-                unselectedItemColor: GREY_COLOR,
-                selectedItemColor: BLACK_COLOR,
-                selectedIconTheme: IconThemeData(color: MAIN_COLOR),
-                selectedFontSize: 13,
-                items: [
-                  BottomNavigationBarItem(
-                      icon: Icon(CustomIcons.object), label: '$OBJ_MOD_LABEL'),
-                  BottomNavigationBarItem(
-                      icon: Icon(CustomIcons.money), label: '$CURR_MOD_LABEL'),
-                  BottomNavigationBarItem(
-                      icon: Icon(CustomIcons.document),
-                      label: '$Text_MOD_LABEL'),
-                  BottomNavigationBarItem(
-                      icon: Icon(CustomIcons.volunteer),
-                      label: '$VOLUNTEER_MOD_LABEL'),
+              leadingWidth: 50,
+              actions: [
+                HomeScreen.cubit.selectedIndex == 3 &&
+                        UserFirebase.isUserLogin()
+                    ? IconButton(
+                        onPressed: ()  {
+                          _displayDialog(context);
+                        },
+                        icon: Icon(Icons.logout))
+                    : Container()
+              ],
+              bottom: TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(icon: Icon(CustomIcons.object)),
+                  Tab(icon: Icon(CustomIcons.money)),
+                  Tab(icon: Icon(CustomIcons.document)),
+                  Tab(icon: Icon(CustomIcons.volunteer)),
                 ],
-                currentIndex: selectedIndex,
-                onTap: (index) {
-                  setState(() {
-                    selectedIndex = index;
-                  });
-                },
-              ),*/
+                labelColor: MAIN_COLOR,
+                indicatorColor: BLACK_COLOR,
+              ),
+            ),
+            body: /* cubit.navPages[selectedIndex]*/
+                Padding(
+              padding: EdgeInsets.all(8),
+              child: TabBarView(
+                controller: _tabController,
+                children: HomeScreen.cubit.navPages,
+              ),
             ),
           );
         },
       ),
     );
+  }
+
+  _displayDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text(
+              'Are you want to sign out?',
+              style: TextStyle(fontSize: 13, color: MAIN_COLOR),
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                child: const Text('Yes'),
+                onPressed: () async {
+                  await HomeScreen.cubit.signOut();
+                  _tabController.animateTo(3);
+                  VolunteerRequestScreen.setState();
+                },
+              ),
+              MaterialButton(
+                child: const Text('No'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
   }
 }

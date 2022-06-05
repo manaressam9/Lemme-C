@@ -7,7 +7,7 @@ class TTS {
     if (flutterTts == null) {
       flutterTts = FlutterTts();
     }
-    flutterTts!.setSpeechRate(0.2);
+    flutterTts!.setSpeechRate(0.3);
     flutterTts!.speak(txt);
   }
 }

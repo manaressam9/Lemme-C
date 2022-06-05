@@ -1,7 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:object_detection/layouts/home_screen/home_screen.dart';
 import 'package:object_detection/shared/components.dart';
@@ -10,12 +7,11 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../../../../shared/constants.dart';
 import '../../../../shared/styles/colors.dart';
-import '../volunteer_screen/volunteer_screen.dart';
 import 'cubit/cubit.dart';
 import 'cubit/states.dart';
 
 class PhoneVerificationScreen extends StatelessWidget {
-  final RegisterCubit _cubit;
+  final VolunteerRequestCubit _cubit;
   final String previousScreenName;
 
   double screenHeight = 0.0;
@@ -33,7 +29,7 @@ class PhoneVerificationScreen extends StatelessWidget {
 
     return BlocProvider(
       create: (BuildContext context) => _cubit,
-      child: BlocConsumer<RegisterCubit, RegisterStates>(
+      child: BlocConsumer<VolunteerRequestCubit, VolunteerRequestStates>(
         listener: (context, state) {
           handleState(context, state);
         },
@@ -173,15 +169,13 @@ class PhoneVerificationScreen extends StatelessWidget {
     );
   }
 
-  void handleState(BuildContext context, RegisterStates state) {
+  void handleState(BuildContext context, VolunteerRequestStates state) {
     if (state is PhoneAutoVerification) {
       pinController.text = _cubit.smsCode;
       showToast('auto verification : ${_cubit.smsCode}');
     } else if (state is PhoneCodeResentState)
       showToast('OTP is resent successfully');
     else if (state is VerificationSuccessState) {
-      HomeScreen.cubit.selectedIndex = 3;
-      navigateAndFinish(context, HomeScreen());
       showToast('Verified Successfully');
     } else if (state is RegisterErrorState) {
       {

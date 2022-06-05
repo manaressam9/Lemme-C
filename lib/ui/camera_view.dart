@@ -15,10 +15,11 @@ import '../strings/strings.dart';
 /// [CameraView] sends each frame for inference
 class CameraView extends StatefulWidget {
   /// Callback to pass results after inference to [HomeView]
-  final Function(List<Recognition>? recognitions) resultsCallback;
+  Function(List<Recognition>? recognitions) resultsCallback;
 
   /// Callback to inference stats to [HomeView]
-  final Function(Stats stats) statsCallback;
+  Function(Stats stats) statsCallback;
+  late Function initializeCamera;
 
   /// Module name
   final String moduleName;
@@ -27,6 +28,7 @@ class CameraView extends StatefulWidget {
   late int pauseModule;
 
   /// Constructor
+
   CameraView(this.resultsCallback, this.statsCallback, this.moduleName, this.pauseModule);
 
   @override
@@ -51,7 +53,8 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   final String moduleName;
 
   _CameraViewState(this.moduleName);
-  int index=0 ;
+
+  int index = 0;
 
   @override
   void initState() {
@@ -61,40 +64,44 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   }
 
   void initStateAsync() async {
-    WidgetsBinding.instance!.addObserver(this);
+    //WidgetsBinding.instance!.addObserver(this);
 
     // Spawn a new isolate
     isolateUtils = IsolateUtils();
     await isolateUtils
         .start(); //send entryPoint function of classifier to isolate
 
-    // Camera initialization
-    await initializeCamera();
-
     // Create an instance of classifier to load model and labels
     classifier = Classifier(moduleName);
-
     // Initially predicting = false
     predicting = false;
+
+    // Camera initialization
+    //widget.initializeCamera = initializeCamera;
+    initializeCamera();
+   // initializeCamera();
   }
+
   /// Initializes the camera by setting [cameraController]
-  Future<void >initializeCamera() async {
-    await CameraControllerFactory.create(context,index, onLatestImageAvailable: onLatestImageAvailable);
-   // createController(context, onLatestImageAvailable);
+  Future<void> initializeCamera() async {
+    //  await CameraControllerFactory.create(context,index, onLatestImageAvailable);
+    await createController(context, onLatestImageAvailable);
+    if (mounted) setState(() {});
   }
+
 
   @override
   Widget build(BuildContext context) {
     // Return empty container while the camera is not initialized
-    if (CameraControllerFactory.cameraControllers[index] == null || !CameraControllerFactory.cameraControllers[index]!.value.isInitialized) {
+    if (cameraController == null || !cameraController!.value.isInitialized) {
       return Container();
     }
 
     return Container(
       height: double.infinity,
       child: AspectRatio(
-          aspectRatio: CameraControllerFactory.cameraControllers[index]!.value.aspectRatio,
-          child: CameraPreview(CameraControllerFactory.cameraControllers[index]!)),
+          aspectRatio: cameraController!.value.aspectRatio,
+          child: CameraPreview(cameraController!)),
     );
   }
 
@@ -106,9 +113,10 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
         return;
       }
 
-      setState(() {
-        predicting = true;
-      });
+      if (mounted)
+        setState(() {
+          predicting = true;
+        });
 
       var uiThreadTimeStart = DateTime.now().millisecondsSinceEpoch;
 
@@ -125,7 +133,6 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
 
       var uiThreadInferenceElapsedTime =
           DateTime.now().millisecondsSinceEpoch - uiThreadTimeStart;
-
       // pass results to HomeView
       widget.resultsCallback(inferenceResults!["recognitions"]);
 
@@ -134,9 +141,10 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
         ..totalElapsedTime = uiThreadInferenceElapsedTime);
 
       // set predicting to false to allow new frames
-      setState(() {
-        predicting = false;
-      });
+      if (mounted)
+        setState(() {
+          predicting = false;
+        });
     }
   }
 
@@ -149,4 +157,32 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     return results;
   }
 
+/*
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (cameraController == null || !cameraController!.value.isInitialized)
+      return;
+    // App state changed before we got the chance to initialize.
+    if (state == AppLifecycleState.inactive) {
+      // Free up memory when camera not active
+      cameraController!.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      // Free up memory when camera not active
+      recreateController();
+    }
+    super.didChangeAppLifecycleState(state);
+  }*/
+
+  recreateController() async {
+    await createControllerafterDisposing(context, onLatestImageAvailable);
+    cameraController!.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    if (mounted) cameraController!.stopImageStream();
+    super.dispose();
+  }
 }

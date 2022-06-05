@@ -11,6 +11,7 @@ class CameraControllerFactory {
   static Future<CameraController?> create(
       BuildContext context, int index,{onLatestImageAvailable,CameraDescription? description}) async {
     cameras = await availableCameras();
+
     cameraControllers[index] =
         CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
     //  }
@@ -37,4 +38,6 @@ class CameraControllerFactory {
 
     return cameraControllers[index];
   }
+
+
 }
