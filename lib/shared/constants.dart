@@ -241,26 +241,9 @@ late _AudioRecognizeState ob ;
 void setLang (String lang){
   ob = _AudioRecognizeState(lang);
 }
-String stt () {
-  bool start = false;
-  int count = 0;
-  PerfectVolumeControl.stream.listen((volume) async {
-
-    if (!start) {
-      text = await ob.streamingRecognize();
-      print("start" + text);
-    } else {
-      ob.stopRecording();
-      print("end" + text);
-    }
-    count++;
-    if (count == 2) {
-      start = !start;
-      count = 0;
-      ob.recognizing = start;
-      text='';
-    }
-  });
+String sttGoogle () {
+  print("start");
+  ob.streamingRecognize();
   return text;
 }
 
@@ -276,20 +259,6 @@ class _AudioRecognizeState {
 
   @override
   _AudioRecognizeState(String language) {
-    /*PerfectVolumeControl.stream.listen((volume) {
-      if (!start) {
-        streamingRecognize();
-      } else {
-        stopRecording();
-      }
-      count++;
-      if (count == 2) {
-        start = !start;
-        count = 0;
-
-        recognizing = start;
-      }
-    });*/
     this.language = language;
     _recorder.initialize();
   }
@@ -329,7 +298,7 @@ class _AudioRecognizeState {
         recognizeFinished = true;
       }
     });
-    print(text);
+    print("in" +text);
     return text;
   }
 
