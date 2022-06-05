@@ -236,25 +236,31 @@ createController(context, onLatestImageAvailable,
 
 
 //stt_function
-String language='';
-_AudioRecognizeState ob = new _AudioRecognizeState(language);
-Future<String> stt (String lang){
+String text ='';
+late _AudioRecognizeState ob ;
+void setLang (String lang){
+  ob = _AudioRecognizeState(lang);
+}
+String stt () {
   bool start = false;
   int count = 0;
-  Future<String> text = '' as Future<String>;
-  PerfectVolumeControl.stream.listen((volume) {
-      if (!start) {
-        text = ob.streamingRecognize();
-      } else {
-        ob.stopRecording();
-      }
-      count++;
-      if (count == 2) {
-        start = !start;
-        count = 0;
-      }
-    });
-    
+  PerfectVolumeControl.stream.listen((volume) async {
+
+    if (!start) {
+      text = await ob.streamingRecognize();
+      print("start" + text);
+    } else {
+      ob.stopRecording();
+      print("end" + text);
+    }
+    count++;
+    if (count == 2) {
+      start = !start;
+      count = 0;
+      ob.recognizing = start;
+      text='';
+    }
+  });
   return text;
 }
 
@@ -262,11 +268,11 @@ class _AudioRecognizeState {
   final RecorderStream _recorder = RecorderStream();
   bool recognizing = false;
   bool recognizeFinished = false;
-  String text = '';
   StreamSubscription<List<int>>? _audioStreamSubscription;
   BehaviorSubject<List<int>>? _audioStream;
   bool start = false;
   int count = 0;
+  String language='';
 
   @override
   _AudioRecognizeState(String language) {
@@ -284,10 +290,9 @@ class _AudioRecognizeState {
         recognizing = start;
       }
     });*/
+    this.language = language;
     _recorder.initialize();
   }
-  
-  get language => 'en_US';
 
   //streaming recognize
   Future<String> streamingRecognize() async {
@@ -312,7 +317,7 @@ class _AudioRecognizeState {
 
     responseStream.listen((data) {
       final currentText =
-          data.results.map((e) => e.alternatives.first.transcript).join('\n');
+      data.results.map((e) => e.alternatives.first.transcript).join('\n');
 
       if (data.results.first.isFinal) {
         responseText += '\n' + currentText;
@@ -324,6 +329,7 @@ class _AudioRecognizeState {
         recognizeFinished = true;
       }
     });
+    print(text);
     return text;
   }
 
@@ -339,6 +345,6 @@ class _AudioRecognizeState {
       model: RecognitionModel.basic,
       enableAutomaticPunctuation: true,
       sampleRateHertz: 16000,
-      languageCode: this.language);
+      languageCode: language);
 }
 //language .. 'en_US' or 'ar'
