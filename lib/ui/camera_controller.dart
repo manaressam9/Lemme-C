@@ -9,8 +9,7 @@ class CameraControllerFactory {
   static late List<CameraDescription> cameras;
 
   static Future<CameraController?> create(
-      BuildContext context, int index, onLatestImageAvailable,
-      {CameraDescription? description}) async {
+      BuildContext context, int index,{onLatestImageAvailable,CameraDescription? description}) async {
     cameras = await availableCameras();
 
     cameraControllers[index] =
@@ -18,11 +17,11 @@ class CameraControllerFactory {
     //  }
     await cameraControllers[index]!.initialize();
 
-// Stream of image passed to [onLatestImageAvailable] callback
-   // if (index != 2)
-    await cameraControllers[index]!.startImageStream(onLatestImageAvailable);
-     /*else
-         cameraControllers[index]!.takePicture();*/
+    /// Stream of image passed to [onLatestImageAvailable] callback to CurrencyScreen and ObjScreen
+    if (index != 2){
+      await cameraControllers[index]!.startImageStream(onLatestImageAvailable);
+    }
+
     /// previewSize is size of each image frame captured by controller
     ///
     /// 352x288 on iOS, 240p (320x240) on Android with ResolutionPreset.low

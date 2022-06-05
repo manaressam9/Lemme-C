@@ -1,4 +1,6 @@
-import 'package:camera/camera.dart';
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:object_detection/layouts/home_screen/home_screen.dart';
@@ -10,6 +12,8 @@ import 'package:object_detection/ui/box_widget.dart';
 import 'package:object_detection/utils/tts_utils.dart';
 
 import '../../ui/camera_view.dart';
+
+import 'package:vibration/vibration.dart';
 
 /// [HomeView] stacks [CameraView] and [BoxWidget]s with bottom sheet for stats
 class ObjectDetection extends StatefulWidget {
@@ -28,6 +32,15 @@ class _ObjectDetectionState extends State<ObjectDetection>
   /// Realtime stats
   Stats? stats;
 
+  /// Pause module controller
+  late int pauseModule;
+
+  /// Object Name to find
+  String? objName;
+
+  /// Tack Object Area
+  late double objArea;
+
   /// Scaffold Key
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   final FlutterTts flutterTts = FlutterTts();
@@ -35,6 +48,9 @@ class _ObjectDetectionState extends State<ObjectDetection>
   @override
   void initState() {
     super.initState();
+    pauseModule = 0;
+    objName = "";
+    objArea = 0.0;
     TTS.speak(OBJ_MOD_LABEL);
     HomeScreen.cubit.changeSelectedIndex(0);
     //ObjectDetection.cameraView = CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL);
@@ -68,7 +84,7 @@ class _ObjectDetectionState extends State<ObjectDetection>
           // Camera View
           ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child: CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL)),
+              child: CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL, pauseModule)),
           // Bounding boxes
           boundingBoxes(results),
 
@@ -90,12 +106,22 @@ class _ObjectDetectionState extends State<ObjectDetection>
               : Container()*/
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(pauseModule==0?Icons.pause_sharp:Icons.play_arrow_sharp),
+        onPressed: (){
+          setState(() {
+            pauseModule = (pauseModule+1)%2;
+          });
+          print(pauseModule==0?"Paused":"Play");
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   /// Returns Stack of bounding boxes
   Widget boundingBoxes(List<Recognition>? results) {
-    if (results == null) {
+    if (this.pauseModule == 1 || results == null) {
       return Container();
     }
 
@@ -116,18 +142,35 @@ class _ObjectDetectionState extends State<ObjectDetection>
 
   /// Callback to get inference results from [CameraView]
   void resultsCallback(List<Recognition>? results) {
-    if (mounted)
+
+    if(mounted){
       setState(() {
         this.results = results;
       });
+    }
+
+    /// depend on chosen resolution [high = 1280*720]
+    double screenArea = 1280 * 720;
+    if(results != null && objName!= null && objName!.isNotEmpty){
+      setState(() {
+        results.retainWhere((element) => element.label==objName!.toLowerCase());
+      });
+      results.forEach((element) {
+        objArea = element.location!.width * element.location!.height;
+        double ratio = objArea/screenArea;
+        showToast((ratio*100).toStringAsFixed(2));
+        Vibration.vibrate(amplitude: 255, duration: (ratio*5000).toInt());
+      });
+    }
   }
 
   /// Callback to get inference stats from [CameraView]
   void statsCallback(Stats stats) {
-    if (mounted)
+    if(mounted){
       setState(() {
         this.stats = stats;
       });
+    }
   }
 
   static const BOTTOM_SHEET_RADIUS = Radius.circular(24.0);

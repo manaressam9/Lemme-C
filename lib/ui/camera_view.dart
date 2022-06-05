@@ -3,11 +3,10 @@ import 'dart:isolate';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:object_detection/modules/object_det/object_detection_screen.dart';
 import 'package:object_detection/tflite/classifier.dart';
 import 'package:object_detection/tflite/recognition.dart';
 import 'package:object_detection/tflite/stats.dart';
-
+import 'package:object_detection/ui/camera_controller.dart';
 import 'package:object_detection/utils/isolate_utils.dart';
 
 import '../shared/constants.dart';
@@ -22,12 +21,15 @@ class CameraView extends StatefulWidget {
   Function(Stats stats) statsCallback;
   late Function initializeCamera;
 
-  //module name
-  String moduleName;
+  /// Module name
+  final String moduleName;
+
+  /// Pause module controller
+  late int pauseModule;
 
   /// Constructor
-  CameraView(this.resultsCallback, this.statsCallback, this.moduleName);
 
+  CameraView(this.resultsCallback, this.statsCallback, this.moduleName, this.pauseModule);
 
   @override
   _CameraViewState createState() => _CameraViewState(moduleName);
@@ -87,6 +89,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     if (mounted) setState(() {});
   }
 
+
   @override
   Widget build(BuildContext context) {
     // Return empty container while the camera is not initialized
@@ -106,7 +109,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   onLatestImageAvailable(CameraImage cameraImage) async {
     if (classifier.interpreter != null && classifier.labels != null) {
       // If previous inference has not completed then return
-      if (predicting) {
+      if (widget.pauseModule == 1 || predicting) {
         return;
       }
 
@@ -175,13 +178,6 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     cameraController!.addListener(() {
       if (mounted) setState(() {});
     });
-  }
-
-  @override
-  void deactivate() {
-    // TODO: implement deactivate
-    if (mounted) cameraController!.stopImageStream();
-    super.deactivate();
   }
 
   @override
