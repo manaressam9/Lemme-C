@@ -51,7 +51,8 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
       body: Container(
         constraints: const BoxConstraints.expand(),
         child: (cameraController!= null)
-            ? ClipRRect(
+
+      ? ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: CameraPreview(
                     cameraController!))
