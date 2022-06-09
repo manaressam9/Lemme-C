@@ -322,7 +322,7 @@ class _AudioRecognizeState {
 //language .. 'en_US' or 'ar'
 
 
-//stt_free
+//stt_package
 stt.SpeechToText _speechToText = stt.SpeechToText();
 bool _speechEnabled = false;
 String lastWords = '';
