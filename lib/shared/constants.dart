@@ -232,13 +232,15 @@ createController(context, onLatestImageAvailable,
   ;
 }
 
-//tts_function
+//tts Google
 void tts (String text , String languageCode , String voiceName)async{
   TextToSpeechService _service = TextToSpeechService('ApI_key');
   AudioPlayer _audioPlayer = AudioPlayer();
   //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: );
   File file = await _service.textToSpeech(text:text , languageCode: languageCode, voiceName: voiceName , audioEncoding: "LINEAR16");
   //(String text , String languageCode , String voiceName , String audioEncoding)
+  //('hello, eman mohammed' , "en-US" , "en-US-Wavenet-E")
+  //('أهلاً إيمان محمد' , "ar-XA" , "ar-XA-Wavenet-D")
   _audioPlayer.play(file.path, isLocal: true );
 }
 
@@ -246,7 +248,11 @@ void tts (String text , String languageCode , String voiceName)async{
 bool isSpeaking = false;
 final _flutterTts = FlutterTts();
 
-void ttsOfline(String tex , bool speaking){
+void ttsOfline(String tex , bool speaking , String language){
+  //("واحد + واحد يساوي2", true, "ar")
+  //("one + one = 2", true, "en-US")
+  _flutterTts.setLanguage(language);
+  _flutterTts.setSpeechRate(0.4);
   isSpeaking = speaking;
   if(isSpeaking) {
     speak(tex);
