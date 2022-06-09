@@ -15,6 +15,11 @@ import 'package:rxdart/rxdart.dart';
 import 'package:sound_stream/sound_stream.dart';
 import 'package:perfect_volume_control/perfect_volume_control.dart';
 
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:functional_listener/functional_listener.dart';
+import 'package:event/event.dart';
+
 import '../models/User.dart';
 import '../ui/camera_view_singleton.dart';
 import 'components.dart';
@@ -246,7 +251,6 @@ String sttGoogle () {
   ob.streamingRecognize();
   return text;
 }
-
 class _AudioRecognizeState {
   final RecorderStream _recorder = RecorderStream();
   bool recognizing = false;
@@ -262,7 +266,6 @@ class _AudioRecognizeState {
     this.language = language;
     _recorder.initialize();
   }
-
   //streaming recognize
   Future<String> streamingRecognize() async {
     _audioStream = BehaviorSubject<List<int>>();
@@ -317,3 +320,40 @@ class _AudioRecognizeState {
       languageCode: language);
 }
 //language .. 'en_US' or 'ar'
+
+
+//stt_free
+stt.SpeechToText _speechToText = stt.SpeechToText();
+bool _speechEnabled = false;
+String lastWords = '';
+var myEvent = Event<DataTest>();
+
+Future<String> sttFlutter() async{
+  _speechEnabled =  await _speechToText.initialize();
+  await _startListening();
+  myEvent.subscribe((args) => {
+    if(args!=null)
+      print('myEvent occured'+args.value)
+    });
+  print(lastWords);
+  return lastWords;
+}
+Future<void> _startListening() async {
+  print ("start");
+  await _speechToText.listen(onResult: _onSpeechResult, listenFor: const Duration(seconds: 10), onSoundLevelChange: null,localeId: "ar",partialResults: false);
+}
+void stopListening() async {
+  print("stop");
+  await _speechToText.stop();
+}
+void _onSpeechResult(SpeechRecognitionResult result) {
+  lastWords = result.recognizedWords;
+  DataTest test =  DataTest();
+  test.value = lastWords;
+  myEvent.broadcast(test);
+  print("onSpeech" + lastWords);
+}
+// An example custom 'argument' class
+class DataTest extends EventArgs {
+  String value='';
+}
