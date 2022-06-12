@@ -8,7 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:object_detection/modules/volunteer/data/firebase//user_firebase.dart';
 
-import 'package:audioplayer/audioplayer.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:wavenet/wavenet.dart';
 
 import '../models/User.dart';
