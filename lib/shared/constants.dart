@@ -328,19 +328,18 @@ bool _speechEnabled = false;
 String lastWords = '';
 var myEvent = Event<DataTest>();
 
-Future<String> sttFlutter() async{
+Future <void> sttFlutter(String lang) async{
   _speechEnabled =  await _speechToText.initialize();
-  await _startListening();
+  await _startListening(lang);
   myEvent.subscribe((args) => {
     if(args!=null)
       print('myEvent occured'+args.value)
     });
   print(lastWords);
-  return lastWords;
 }
-Future<void> _startListening() async {
+Future<void> _startListening(String lang) async {
   print ("start");
-  await _speechToText.listen(onResult: _onSpeechResult, listenFor: const Duration(seconds: 10), onSoundLevelChange: null,localeId: "ar",partialResults: false);
+  await _speechToText.listen(onResult: _onSpeechResult, listenFor: const Duration(seconds: 10), onSoundLevelChange: null, localeId: lang, partialResults: false);
 }
 void stopListening() async {
   print("stop");
