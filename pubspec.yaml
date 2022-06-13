@@ -87,6 +87,7 @@ dependencies:
 
   #teseract for textRec
   flutter_tesseract_ocr: ^0.4.20
+  opencv_4: 1.0.0
 
   #vibration
   vibration: ^1.7.4-nullsafety.0
