@@ -11,7 +11,7 @@ import '../../utils/tts_utils.dart';
 
 /// [HomeView] stacks [CameraView] and [BoxWidget]s with bottom sheet for stats
 class CurrencyCounter extends StatefulWidget {
-  //static CameraView? cameraView;
+  static CameraView? cameraView;
 
   const CurrencyCounter({Key? key}) : super(key: key);
 
@@ -43,7 +43,7 @@ class _CurrencyCounterState extends State<CurrencyCounter>
     pauseModule = 0;
     TTS.speak(CURR_MOD_LABEL);
     HomeScreen.cubit.changeSelectedIndex(1);
-    //CurrencyCounter.cameraView = CameraView(resultsCallback, statsCallback, CURR_MOD_LABEL);
+    CurrencyCounter.cameraView = CameraView(resultsCallback, statsCallback, CURR_MOD_LABEL,pauseModule);
   }
 
 /*  @override
@@ -75,7 +75,7 @@ class _CurrencyCounterState extends State<CurrencyCounter>
           ClipRRect(
               borderRadius: BorderRadius.circular(15),
 
-              child:   CameraView(resultsCallback, statsCallback, CURR_MOD_LABEL, pauseModule)),
+              child:  CurrencyCounter.cameraView),
           // Bounding boxes
           boundingBoxes(results),
 
@@ -166,6 +166,8 @@ class _CurrencyCounterState extends State<CurrencyCounter>
   static const BOTTOM_SHEET_RADIUS = Radius.circular(24.0);
   static const BORDER_RADIUS_BOTTOM_SHEET = BorderRadius.only(
       topLeft: BOTTOM_SHEET_RADIUS, topRight: BOTTOM_SHEET_RADIUS);
+
+
 }
 
 /// Row for one Stats field

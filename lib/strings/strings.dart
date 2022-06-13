@@ -19,7 +19,7 @@ const REGULAR_FONT = 'RowdiesRegular';
 const LIGHT_FONT = 'RowdiesLight';
 
 //firebase
-const USERS_COLLECTION = 'Users';
+const USERS_COLLECTION = 'Blind';
 const VOLUNTEERS_COLLECTION = 'Volunteers';
 const REQUESTS_COLLECTION = 'Requests';
 const RESPONSES_COLLECTION = 'Responses';
