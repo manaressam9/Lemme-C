@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:object_detection/layouts/home_screen/cubit/cubit.dart';
 import 'package:object_detection/layouts/home_screen/cubit/states.dart';
-import 'package:object_detection/modules/currency_counter/currency_counter_screen.dart';
-import 'package:object_detection/modules/object_det/object_detection_screen.dart';
 import 'package:object_detection/shared/constants.dart';
-
 import 'package:object_detection/shared/styles/icons.dart';
 import 'package:object_detection/strings/strings.dart';
-
+import '../../modules/currency_counter/currency_counter_screen.dart';
+import '../../modules/object_det/object_detection_screen.dart';
 import '../../modules/volunteer/data/firebase/user_firebase.dart';
 import '../../modules/volunteer/ui/volunteer_request/volunteer_request_screen.dart';
 import '../../shared/styles/colors.dart';
@@ -39,18 +37,20 @@ class HomeScreenState extends State<HomeScreen>
     _tabController = TabController(vsync: this, initialIndex: 0, length: 4);
     if (verified) _tabController.animateTo(3);
 
-    _tabController.addListener(() {
-      if (_tabController.index == 0 || _tabController.index == 1)
-        cameraController!.stopImageStream();
-      /*   if (_tabController.index == 0) {
-        showToast(_tabController.index.toString());
+    _tabController.addListener(() async {
+      if (_tabController.index == 0 &&
+          ObjectDetection.cameraView != null &&
+          !ObjectDetection.cameraView!.firstTime) {
         ObjectDetection.cameraView?.initializeCamera();
+        showToast("index 0");
+      } else if (_tabController.index == 1 &&
+          !CurrencyCounter.cameraView!.firstTime) {
+        CurrencyCounter.cameraView?.initializeCamera();
+        showToast("index 1");
       }
-      else if (_tabController.index == 1)
-        {
-          showToast(_tabController.index.toString());
-          CurrencyCounter.cameraView?.initializeCamera();
-        }*/
+      /*else if (_tabController.index == 2){
+         await cameraController!.stopImageStream();
+    }*/
     });
   }
 
@@ -81,7 +81,7 @@ class HomeScreenState extends State<HomeScreen>
                 HomeScreen.cubit.selectedIndex == 3 &&
                         UserFirebase.isUserLogin()
                     ? IconButton(
-                        onPressed: ()  {
+                        onPressed: () {
                           _displayDialog(context);
                         },
                         icon: Icon(Icons.logout))
@@ -129,6 +129,7 @@ class HomeScreenState extends State<HomeScreen>
                   await HomeScreen.cubit.signOut();
                   _tabController.animateTo(3);
                   VolunteerRequestScreen.setState();
+                  Navigator.of(context).pop();
                 },
               ),
               MaterialButton(

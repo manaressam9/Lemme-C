@@ -5,9 +5,9 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/shared/constants.dart';
-import 'package:object_detection/ui/camera_controller.dart';
 import '../../layouts/home_screen/home_screen.dart';
 import '../../strings/strings.dart';
+import '../../ui/camera_controller.dart';
 import '../../utils/tts_utils.dart';
 
 class TextReaderScreen extends StatefulWidget {
@@ -34,14 +34,19 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
   late CameraDescription description;
 
   _initializeCamera() async {
-    //await CameraControllerFactory.create(context, 2);
-    await cameraController!.setFlashMode(FlashMode.off);
+    await CameraControllerFactory.create(context, 2);
+    //  await cameraController!.stopImageStream();
+    //await createController(context, (frame){}, 2);
+    await CameraControllerFactory.cameraControllers[2]!
+        .setFlashMode(FlashMode.off);
     setState(() {});
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
+    //cameraController2!.dispose();
+//    CameraControllerFactory.cameraControllers[2]!.dispose();
     super.dispose();
   }
 
@@ -50,18 +55,18 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
     return Scaffold(
       body: Container(
         constraints: const BoxConstraints.expand(),
-        child: (cameraController!= null)
-
-      ? ClipRRect(
+        child: (CameraControllerFactory.cameraControllers[2] != null)
+            ? ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: CameraPreview(
-                    cameraController!))
+                    CameraControllerFactory.cameraControllers[2]!))
             : Container(),
       ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add_a_photo_outlined),
           onPressed: () async {
-            XFile rawImg = await cameraController!.takePicture();
+            XFile rawImg = await CameraControllerFactory.cameraControllers[2]!
+                .takePicture();
             File imgFile = File(rawImg.path);
             String res = await FlutterTesseractOcr.extractText(imgFile.path,
                 language: 'ara+eng',
@@ -86,21 +91,12 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
      //   _cameraController!.stopImageStream();
         break;
       case AppLifecycleState.resumed:
-      */ /*  if (!_cameraController!.value.isStreamingImages) {
+        if (!_cameraController!.value.isStreamingImages) {
           await _cameraController!.startImageStream(onLatestImageAvailable);
-        }*/ /*
+        }
         break;
       default:
     }
-  }
-
-  @override
-  void dispose() {
-     // _cameraController!.dispose().then((_) {
-   // });
-    _recognizer.close();
-    _currentDetector = null;
-    super.dispose();
   }*/
 
 }

@@ -20,17 +20,11 @@ import '../ui/camera_view_singleton.dart';
 const MAX_HEIGHT = .0;
 
 double getScreenHeight(context) {
-  return MediaQuery
-      .of(context)
-      .size
-      .height;
+  return MediaQuery.of(context).size.height;
 }
 
 double getScreenWidth(context) {
-  return MediaQuery
-      .of(context)
-      .size
-      .width;
+  return MediaQuery.of(context).size.width;
 }
 
 showToast(String msg, {Toast duration = Toast.LENGTH_SHORT}) {
@@ -47,7 +41,7 @@ showToast(String msg, {Toast duration = Toast.LENGTH_SHORT}) {
 void navigateAndFinish(BuildContext context, Widget screen) {
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute(builder: (_) => screen),
-        (route) => false, //if you want to disable back feature set to false
+    (route) => false, //if you want to disable back feature set to false
   );
 }
 
@@ -86,14 +80,14 @@ String handleError(String errCode) {
   switch (errCode) {
     case 'ERROR_EMAIL_ALREADY_IN_USE':
       errMessage =
-      "This e-mail address is already in use, please use a different e-mail address.";
+          "This e-mail address is already in use, please use a different e-mail address.";
       break;
     case 'ERROR_INVALID_EMAIL':
       errMessage = "The email address is badly formatted.";
       break;
     case 'ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL':
       errMessage =
-      "The e-mail address has been registered in the system before. ";
+          "The e-mail address has been registered in the system before. ";
       break;
     case 'user-not-found':
       errMessage = 'No user found for that email. ';
@@ -210,7 +204,6 @@ const CURR_IMAGE_SIZE = 512;
 
 //late List<CameraDescription> cameras;
 
-
 /// Controller
 CameraController? cameraController;
 
@@ -224,6 +217,7 @@ createControllerafterDisposing(context, onLatestImageAvailable,
   await cameraController!.initialize();
 
 // Stream of image passed to [onLatestImageAvailable] callback
+
   await cameraController!.startImageStream(onLatestImageAvailable);
 
   /// previewSize is size of each image frame captured by controller
@@ -236,57 +230,69 @@ createControllerafterDisposing(context, onLatestImageAvailable,
 
 // the display width of image on screen is
 // same as screenWidth while maintaining the aspectRatio
-  Size screenSize = MediaQuery
-      .of(context)
-      .size;
+  Size screenSize = MediaQuery.of(context).size;
   CameraViewSingleton.screenSize = screenSize;
   CameraViewSingleton.ratio = screenSize.width / previewSize.height;
   ;
 }
 
-Future<void> createController(context, onLatestImageAvailable,
-    {CameraDescription? description}) async {
-  if (cameraController != null && cameraController!.value.isInitialized) {
-    await cameraController!.startImageStream(onLatestImageAvailable);
-  } else {
-    List<CameraDescription> cameras = await availableCameras();
-    // cameras[0] for rear-camera
+CameraController? cameraController2;
 
-    cameraController =
-        CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
-    await cameraController!.initialize();
+Future<void> createController(
+    context, onLatestImageAvailable, int viewIndex) async {
+  List<CameraDescription> cameras = await availableCameras();
+
+  if (viewIndex != 2) {
+    if (cameraController != null && cameraController!.value.isInitialized) {
+      await cameraController!.stopImageStream();
+      await cameraController!.startImageStream(onLatestImageAvailable);
+    } else {
+      cameraController = CameraController(cameras[0], ResolutionPreset.high,
+          enableAudio: false);
+      await cameraController!.initialize();
 
 // Stream of image passed to [onLatestImageAvailable] callback
-    await cameraController!.startImageStream(onLatestImageAvailable);
+      await cameraController!.startImageStream(onLatestImageAvailable);
+    }
+  } else if (cameraController2 == null ||
+      !cameraController2!.value.isInitialized) {
+    cameraController2 =
+        CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
+    await cameraController2!.initialize();
+  }
+  // cameras[0] for rear-camera
 
-    /// previewSize is size of each image frame captured by controller
-    ///
-    /// 352x288 on iOS, 240p (320x240) on Android with ResolutionPreset.low
-    Size previewSize = cameraController!.value.previewSize!;
+  /// previewSize is size of each image frame captured by controller
+  ///
+  /// 352x288 on iOS, 240p (320x240) on Android with ResolutionPreset.low
+  Size previewSize = cameraController!.value.previewSize!;
 
-    /// previewSize is size of raw input image to the model
-    CameraViewSingleton.inputImageSize = previewSize;
+  /// previewSize is size of raw input image to the model
+  CameraViewSingleton.inputImageSize = previewSize;
 
 // the display width of image on screen is
 // same as screenWidth while maintaining the aspectRatio
-    Size screenSize = MediaQuery
-        .of(context)
-        .size;
-    CameraViewSingleton.screenSize = screenSize;
-    CameraViewSingleton.ratio = screenSize.width / previewSize.height;
-    ;
-  }
+  Size screenSize = MediaQuery.of(context).size;
+  CameraViewSingleton.screenSize = screenSize;
+  CameraViewSingleton.ratio = screenSize.width / previewSize.height;
+  ;
 }
 
 void directPhoneCall(String phoneNumber) async {
   await FlutterPhoneDirectCaller.callNumber(phoneNumber);
 }
+
 //tts_function
-void tts (String text , String languageCode , String voiceName)async{
-  TextToSpeechService _service = TextToSpeechService('AIzaSyDQwpnGuu5GG4-aVhqBEAxj8SU_zvRz_L8');
+void tts(String text, String languageCode, String voiceName) async {
+  TextToSpeechService _service =
+      TextToSpeechService('AIzaSyDQwpnGuu5GG4-aVhqBEAxj8SU_zvRz_L8');
   AudioPlayer _audioPlayer = AudioPlayer();
   //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: );
-  File file = await _service.textToSpeech(text:text , languageCode: languageCode, voiceName: voiceName , audioEncoding: "LINEAR16");
+  File file = await _service.textToSpeech(
+      text: text,
+      languageCode: languageCode,
+      voiceName: voiceName,
+      audioEncoding: "LINEAR16");
   //(String text , String languageCode , String voiceName , String audioEncoding)
-  _audioPlayer.play(file.path, isLocal: true );
+  _audioPlayer.play(file.path, isLocal: true);
 }

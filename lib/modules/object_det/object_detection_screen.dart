@@ -16,16 +16,16 @@ import '../../ui/camera_view.dart';
 import 'package:vibration/vibration.dart';
 
 /// [HomeView] stacks [CameraView] and [BoxWidget]s with bottom sheet for stats
-class ObjectDetection extends StatefulWidget {
+class ObjectDetection extends StatefulWidget  {
   ObjectDetection({Key? key}) : super(key: key);
-  //static CameraView? cameraView;
+  static CameraView? cameraView;
 
   @override
   _ObjectDetectionState createState() => _ObjectDetectionState();
 }
 
 class _ObjectDetectionState extends State<ObjectDetection>
-    with WidgetsBindingObserver {
+    with  WidgetsBindingObserver {
   /// Results to draw bounding boxes
   List<Recognition>? results;
 
@@ -53,7 +53,7 @@ class _ObjectDetectionState extends State<ObjectDetection>
     objArea = 0.0;
     TTS.speak(OBJ_MOD_LABEL);
     HomeScreen.cubit.changeSelectedIndex(0);
-    //ObjectDetection.cameraView = CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL);
+    ObjectDetection.cameraView = CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL, pauseModule);
   }
 
   @override
@@ -84,7 +84,7 @@ class _ObjectDetectionState extends State<ObjectDetection>
           // Camera View
           ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child: CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL, pauseModule)),
+              child: ObjectDetection.cameraView),
           // Bounding boxes
           boundingBoxes(results),
 
@@ -176,6 +176,8 @@ class _ObjectDetectionState extends State<ObjectDetection>
   static const BOTTOM_SHEET_RADIUS = Radius.circular(24.0);
   static const BORDER_RADIUS_BOTTOM_SHEET = BorderRadius.only(
       topLeft: BOTTOM_SHEET_RADIUS, topRight: BOTTOM_SHEET_RADIUS);
+
+
 }
 
 /// Row for one Stats field

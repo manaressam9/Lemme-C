@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:background_location/background_location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart' as loc;
+import 'package:location/location.dart';
 import 'package:object_detection/modules/volunteer/data/firebase/user_firebase.dart';
 import 'package:object_detection/modules/volunteer/ui/volunteer_request/cubit/cubit.dart';
 import 'package:object_detection/shared/constants.dart';
@@ -12,27 +13,26 @@ import '../../../../models/User.dart';
 class LocationApi {
   static loc.Location _location = new loc.Location();
 
-  // static VolunteerRequestStates requestState = RequestFailed();
   static late VolunteerRequestCubit myCubit;
 
   static Future<void> sendRealTimeLocationUpdates(
       VolunteerRequestCubit cubit) async {
-/*    if (await _checkServiceAvailability() && await _checkLocationPermission()) {
+    if (await _checkServiceAvailability() && await _checkLocationPermission()) {
       myCubit = cubit;
+      BackgroundLocation.setAndroidNotification(
+          title: "Blind Assistant",
+          message: "listen continuous location changes",
+          icon: "@mipmap/ic_launcher");
+      // listen on location change every 3 minutes
+      BackgroundLocation.setAndroidConfiguration(1000*60*3);
+      BackgroundLocation.startLocationService();
       _listenOnLocationChange();
       // showToast('Request is sent successfully');
-    }*/
+    }
     myCubit = cubit;
-    BackgroundLocation.setAndroidNotification(
-        title: "Blind Assistant",
-        message: "listen continuous location changes");
-    // listen on location change every 5 minutes
-    BackgroundLocation.setAndroidConfiguration(1000 * 60 * 5);
-    BackgroundLocation.startLocationService();
-    _listenOnLocationChange();
   }
 
-/*
+
 
   static Future<bool> _checkServiceAvailability() async {
     bool _serviceEnabled = await _location.serviceEnabled();
@@ -41,16 +41,16 @@ class LocationApi {
     }
     return _serviceEnabled;
   }
-*/
 
-  /*static Future<bool> _checkLocationPermission() async {
+
+   static Future<bool> _checkLocationPermission() async {
     PermissionStatus _permissionGranted = await _location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await _location.requestPermission();
     }
     return _permissionGranted == PermissionStatus.granted;
   }
-*/
+
   static StreamSubscription<loc.LocationData>? _locationSubsrcibtion;
 
   static void _listenOnLocationChange() async {
@@ -61,11 +61,11 @@ class LocationApi {
     }).listen((locationData) async {
       await _updateUserLocation(locationData.latitude, locationData.longitude);
     });*/
-    try{
+    try {
       BackgroundLocation.getLocationUpdates((location) async {
         await _updateUserLocation(location.latitude, location.longitude);
       });
-    }catch (err){}
+    } catch (err) {}
   }
 
   static Request? request;
