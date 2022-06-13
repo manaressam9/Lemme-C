@@ -15,16 +15,21 @@ import '../strings/strings.dart';
 /// [CameraView] sends each frame for inference
 class CameraView extends StatefulWidget {
   /// Callback to pass results after inference to [HomeView]
-  final Function(List<Recognition>? recognitions) resultsCallback;
+  Function(List<Recognition>? recognitions) resultsCallback;
 
   /// Callback to inference stats to [HomeView]
-  final Function(Stats stats) statsCallback;
-
-  //module name
+  Function(Stats stats) statsCallback;
+  late Function initializeCamera;
+  bool firstTime = true;
+  /// Module name
   final String moduleName;
 
+  /// Pause module controller
+  late int pauseModule;
+
   /// Constructor
-  const CameraView(this.resultsCallback, this.statsCallback, this.moduleName);
+
+  CameraView(this.resultsCallback, this.statsCallback, this.moduleName, this.pauseModule);
 
   @override
   _CameraViewState createState() => _CameraViewState(moduleName);
@@ -48,7 +53,8 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   final String moduleName;
 
   _CameraViewState(this.moduleName);
-  int index=0 ;
+
+  int index = 0;
 
   @override
   void initState() {
@@ -58,27 +64,31 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   }
 
   void initStateAsync() async {
-    WidgetsBinding.instance!.addObserver(this);
+    //WidgetsBinding.instance!.addObserver(this);
 
     // Spawn a new isolate
     isolateUtils = IsolateUtils();
     await isolateUtils
         .start(); //send entryPoint function of classifier to isolate
 
-    // Camera initialization
-    await initializeCamera();
-
     // Create an instance of classifier to load model and labels
     classifier = Classifier(moduleName);
-
     // Initially predicting = false
     predicting = false;
+
+    // Camera initialization
+   // widget.initializeCamera = initializeCamera;
+    initializeCamera();
+  //  widget.firstTime = false;
   }
+
   /// Initializes the camera by setting [cameraController]
-  Future<void >initializeCamera() async {
-    await CameraControllerFactory.create(context,index, onLatestImageAvailable);
-   // createController(context, onLatestImageAvailable);
+  Future<void> initializeCamera() async {
+     await CameraControllerFactory.create(context,index,onLatestImageAvailable: onLatestImageAvailable);
+    //await createController(context, onLatestImageAvailable,index);
+    if (mounted) setState(() {});
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,13 +109,14 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   onLatestImageAvailable(CameraImage cameraImage) async {
     if (classifier.interpreter != null && classifier.labels != null) {
       // If previous inference has not completed then return
-      if (predicting) {
+      if (widget.pauseModule == 1 || predicting) {
         return;
       }
 
-      setState(() {
-        predicting = true;
-      });
+      if (mounted)
+        setState(() {
+          predicting = true;
+        });
 
       var uiThreadTimeStart = DateTime.now().millisecondsSinceEpoch;
 
@@ -122,7 +133,6 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
 
       var uiThreadInferenceElapsedTime =
           DateTime.now().millisecondsSinceEpoch - uiThreadTimeStart;
-
       // pass results to HomeView
       widget.resultsCallback(inferenceResults!["recognitions"]);
 
@@ -131,9 +141,10 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
         ..totalElapsedTime = uiThreadInferenceElapsedTime);
 
       // set predicting to false to allow new frames
-      setState(() {
-        predicting = false;
-      });
+      if (mounted)
+        setState(() {
+          predicting = false;
+        });
     }
   }
 
@@ -146,4 +157,33 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     return results;
   }
 
+/*
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (cameraController == null || !cameraController!.value.isInitialized)
+      return;
+    // App state changed before we got the chance to initialize.
+    if (state == AppLifecycleState.inactive) {
+      // Free up memory when camera not active
+      cameraController!.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      // Free up memory when camera not active
+      recreateController();
+    }
+    super.didChangeAppLifecycleState(state);
+  }*/
+
+ /* recreateController() async {
+    await createControllerafterDisposing(context, onLatestImageAvailable);
+    cameraController!.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }*/
+
+  @override
+  void dispose() {
+//    if (mounted) cameraController!.stopImageStream();
+  //  CameraControllerFactory.cameraControllers[index]!.dispose();
+    super.dispose();
+  }
 }

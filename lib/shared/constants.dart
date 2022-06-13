@@ -1,13 +1,19 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:object_detection/modules/volunteer/data/firebase//user_firebase.dart';
+import 'package:object_detection/ui/camera_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:wavenet/wavenet.dart';
 
 import 'package:flutter/services.dart';
 import 'package:google_speech/google_speech.dart';
@@ -22,7 +28,6 @@ import 'package:event/event.dart';
 
 import '../models/User.dart';
 import '../ui/camera_view_singleton.dart';
-import 'components.dart';
 
 const MAX_HEIGHT = .0;
 
@@ -116,6 +121,14 @@ final FirebaseFirestore myFireStore = FirebaseFirestore.instance;
 
 final FirebaseStorage myStorage = FirebaseStorage.instance;
 
+SharedPreferences? _preferences;
+
+Future<SharedPreferences> getPreference() async {
+  if (_preferences == null)
+    _preferences = await SharedPreferences.getInstance();
+  return _preferences!;
+}
+
 UserModel generalUser = UserModel.fromUser();
 
 // date handle
@@ -206,13 +219,14 @@ const CURR_IMAGE_SIZE = 512;
 /// Controller
 CameraController? cameraController;
 
-createController(context, onLatestImageAvailable,
+createControllerafterDisposing(context, onLatestImageAvailable,
     {CameraDescription? description}) async {
+
   if (cameraController != null && cameraController!.value.isInitialized) {
     await cameraController!.startImageStream(onLatestImageAvailable);
     return;
   }
-
+  
   List<CameraDescription> cameras = await availableCameras();
   // cameras[0] for rear-camera
 
@@ -221,6 +235,7 @@ createController(context, onLatestImageAvailable,
   await cameraController!.initialize();
 
 // Stream of image passed to [onLatestImageAvailable] callback
+
   await cameraController!.startImageStream(onLatestImageAvailable);
 
   /// previewSize is size of each image frame captured by controller
@@ -238,6 +253,7 @@ createController(context, onLatestImageAvailable,
   CameraViewSingleton.ratio = screenSize.width / previewSize.height;
   ;
 }
+
 
 
 //stt_function
@@ -355,4 +371,65 @@ void _onSpeechResult(SpeechRecognitionResult result) {
 // An example custom 'argument' class
 class DataTest extends EventArgs {
   String value='';
+}
+
+CameraController? cameraController2;
+
+Future<void> createController(
+    context, onLatestImageAvailable, int viewIndex) async {
+  List<CameraDescription> cameras = await availableCameras();
+
+  if (viewIndex != 2) {
+    if (cameraController != null && cameraController!.value.isInitialized) {
+      await cameraController!.stopImageStream();
+      await cameraController!.startImageStream(onLatestImageAvailable);
+    } else {
+      cameraController = CameraController(cameras[0], ResolutionPreset.high,
+          enableAudio: false);
+      await cameraController!.initialize();
+
+// Stream of image passed to [onLatestImageAvailable] callback
+      await cameraController!.startImageStream(onLatestImageAvailable);
+    }
+  } else if (cameraController2 == null ||
+      !cameraController2!.value.isInitialized) {
+    cameraController2 =
+        CameraController(cameras[0], ResolutionPreset.high, enableAudio: false);
+    await cameraController2!.initialize();
+  }
+  // cameras[0] for rear-camera
+
+  /// previewSize is size of each image frame captured by controller
+  ///
+  /// 352x288 on iOS, 240p (320x240) on Android with ResolutionPreset.low
+  Size previewSize = cameraController!.value.previewSize!;
+
+  /// previewSize is size of raw input image to the model
+  CameraViewSingleton.inputImageSize = previewSize;
+
+// the display width of image on screen is
+// same as screenWidth while maintaining the aspectRatio
+  Size screenSize = MediaQuery.of(context).size;
+  CameraViewSingleton.screenSize = screenSize;
+  CameraViewSingleton.ratio = screenSize.width / previewSize.height;
+  ;
+}
+
+void directPhoneCall(String phoneNumber) async {
+  await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+}
+
+//tts_function
+void tts(String text, String languageCode, String voiceName) async {
+  TextToSpeechService _service =
+      TextToSpeechService('AIzaSyDQwpnGuu5GG4-aVhqBEAxj8SU_zvRz_L8');
+  AudioPlayer _audioPlayer = AudioPlayer();
+  //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: );
+  File file = await _service.textToSpeech(
+      text: text,
+      languageCode: languageCode,
+      voiceName: voiceName,
+      audioEncoding: "LINEAR16");
+  //(String text , String languageCode , String voiceName , String audioEncoding)
+  _audioPlayer.play(file.path, isLocal: true);
 }
