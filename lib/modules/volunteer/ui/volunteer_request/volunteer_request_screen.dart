@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:object_detection/modules/volunteer/ui/volunteer_request/RegisterScreen.dart';
 import 'package:object_detection/modules/volunteer/ui/volunteer_request/RequestScreen.dart';
-import 'package:object_detection/modules/volunteer/ui/volunteer_request/ResponseScreen.dart';
+import 'package:object_detection/modules/volunteer/ui/volunteer_request/response/ResponseScreen.dart';
 import 'package:object_detection/modules/volunteer/ui/volunteer_request/login_screen.dart';
 import 'package:object_detection/modules/volunteer/ui/volunteer_request/phone_Verification_screen.dart';
 import '../../../../layouts/home_screen/home_screen.dart';
@@ -30,8 +30,6 @@ class _VolunteerRequestScreenState extends State<VolunteerRequestScreen>
 
   bool firstTime = true;
 
-
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -56,9 +54,9 @@ class _VolunteerRequestScreenState extends State<VolunteerRequestScreen>
           cubit = VolunteerRequestCubit.get(context);
           screenHeight = getScreenHeight(context);
           screenWidth = getScreenWidth(context);
-          if (myState is RequestSucceeded) {
+          /*if (myState is RequestSucceeded) {
             cubit.listenOnResponseIfExist();
-          }
+          }*/
           return Scaffold(
             body: cubit.isUserLogin()
                 ? FutureBuilder(
@@ -70,10 +68,7 @@ class _VolunteerRequestScreenState extends State<VolunteerRequestScreen>
                           firstTime = false;
                         }
                         return buildResponseScreen(state);*/
-                    return ResponseScreen(
-                        state is ResponseSent && cubit.response != null,
-                        cubit.response!,
-                        cubit.listenOnResponseIfExist);
+                    return ResponseScreen();
                   } else
                     return RequestScreen(cubit, state);
                 })
@@ -86,8 +81,8 @@ class _VolunteerRequestScreenState extends State<VolunteerRequestScreen>
     );
   }
 
-  // response screen
-  /* Widget buildResponseScreen(state) {
+/*  // response screen
+   Widget buildResponseScreen(state) {
      return state is ResponseSent && cubit.response != null
         ? ResponseScreen(
             cubit.response!.routeData!.duration.toInt(),
@@ -96,23 +91,12 @@ class _VolunteerRequestScreenState extends State<VolunteerRequestScreen>
         : WaitingScreen();
   }*/
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // App state changed before we got the chance to initialize.
-    if (cameraController == null || !cameraController!.value.isInitialized) {
-      return;
-    }
-    if (state == AppLifecycleState.inactive) {
-      // Free up memory when camera not active
-      cameraController!.dispose();
-    }
-    super.didChangeAppLifecycleState(state);
-  }
+
 
   @override
   void dispose() {
     // TODO: implement dispose
-    cubit.onDispose();
+    //cubit.onDispose();
     super.dispose();
   }
 

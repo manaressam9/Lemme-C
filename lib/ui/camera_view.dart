@@ -20,7 +20,7 @@ class CameraView extends StatefulWidget {
   /// Callback to inference stats to [HomeView]
   Function(Stats stats) statsCallback;
   late Function initializeCamera;
-
+  bool firstTime = true;
   /// Module name
   final String moduleName;
 
@@ -77,15 +77,15 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     predicting = false;
 
     // Camera initialization
-    //widget.initializeCamera = initializeCamera;
+   // widget.initializeCamera = initializeCamera;
     initializeCamera();
-   // initializeCamera();
+  //  widget.firstTime = false;
   }
 
   /// Initializes the camera by setting [cameraController]
   Future<void> initializeCamera() async {
-    //  await CameraControllerFactory.create(context,index, onLatestImageAvailable);
-    await createController(context, onLatestImageAvailable);
+     await CameraControllerFactory.create(context,index,onLatestImageAvailable: onLatestImageAvailable);
+    //await createController(context, onLatestImageAvailable,index);
     if (mounted) setState(() {});
   }
 
@@ -93,15 +93,15 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     // Return empty container while the camera is not initialized
-    if (cameraController == null || !cameraController!.value.isInitialized) {
+    if (CameraControllerFactory.cameraControllers[index] == null || !CameraControllerFactory.cameraControllers[index]!.value.isInitialized) {
       return Container();
     }
 
     return Container(
       height: double.infinity,
       child: AspectRatio(
-          aspectRatio: cameraController!.value.aspectRatio,
-          child: CameraPreview(cameraController!)),
+          aspectRatio: CameraControllerFactory.cameraControllers[index]!.value.aspectRatio,
+          child: CameraPreview(CameraControllerFactory.cameraControllers[index]!)),
     );
   }
 
@@ -173,16 +173,17 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
   }*/
 
-  recreateController() async {
+ /* recreateController() async {
     await createControllerafterDisposing(context, onLatestImageAvailable);
     cameraController!.addListener(() {
       if (mounted) setState(() {});
     });
-  }
+  }*/
 
   @override
   void dispose() {
-    if (mounted) cameraController!.stopImageStream();
+//    if (mounted) cameraController!.stopImageStream();
+  //  CameraControllerFactory.cameraControllers[index]!.dispose();
     super.dispose();
   }
 }

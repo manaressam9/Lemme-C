@@ -9,7 +9,7 @@ class CameraControllerFactory {
   static late List<CameraDescription> cameras;
 
   static Future<CameraController?> create(
-      BuildContext context, int index,{onLatestImageAvailable,CameraDescription? description}) async {
+      BuildContext context, int index,{onLatestImageAvailable}) async {
     cameras = await availableCameras();
 
     cameraControllers[index] =

@@ -187,12 +187,10 @@ class VolunteerRequestCubit extends Cubit<VolunteerRequestStates> {
       _listenOnResponse(preference.getString(PREFERENCE_RESPONSE_KEY)!!);
     } else {
       emit(ResponseWaited());
-      showToast("1");
       requestStream = UserFirebase.listenOnMyRequest().listen((docSnapShot) {
         if (docSnapShot.exists && docSnapShot.data() != null) {
           final myRequest = Request.fromJson(docSnapShot.data()!!);
           if (myRequest.state == REQUEST_STATE_ACCEPTED) {
-            showToast("2");
             _listenOnResponse(
                 myRequest.blindData.key + "&" + myRequest.volunteerId!);
             requestStream!.cancel();
@@ -211,9 +209,7 @@ class VolunteerRequestCubit extends Cubit<VolunteerRequestStates> {
   void _listenOnResponse(String responseKey) {
     responseStream =
         UserFirebase.listenOnMyResponse(responseKey).listen((doc) async {
-      showToast("3");
       if (doc.exists && doc.data() != null) {
-        showToast("4");
         response = Response.fromJson(doc.data()!);
         emit(ResponseSent());
         if (firstTime) {
@@ -236,7 +232,6 @@ class VolunteerRequestCubit extends Cubit<VolunteerRequestStates> {
 
   onRequestSuccess() {
     emit(RequestSucceeded());
-    showToast("emit called");
   }
 
   bool isUserLogin() => UserFirebase.isUserLogin();
