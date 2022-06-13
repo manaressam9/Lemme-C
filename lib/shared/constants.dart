@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:camera/camera.dart';
@@ -13,6 +14,17 @@ import 'package:object_detection/ui/camera_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:wavenet/wavenet.dart';
+
+import 'package:flutter/services.dart';
+import 'package:google_speech/google_speech.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:sound_stream/sound_stream.dart';
+import 'package:perfect_volume_control/perfect_volume_control.dart';
+
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:functional_listener/functional_listener.dart';
+import 'package:event/event.dart';
 
 import '../models/User.dart';
 import '../ui/camera_view_singleton.dart';
@@ -209,6 +221,12 @@ CameraController? cameraController;
 
 createControllerafterDisposing(context, onLatestImageAvailable,
     {CameraDescription? description}) async {
+
+  if (cameraController != null && cameraController!.value.isInitialized) {
+    await cameraController!.startImageStream(onLatestImageAvailable);
+    return;
+  }
+  
   List<CameraDescription> cameras = await availableCameras();
   // cameras[0] for rear-camera
 
@@ -234,6 +252,125 @@ createControllerafterDisposing(context, onLatestImageAvailable,
   CameraViewSingleton.screenSize = screenSize;
   CameraViewSingleton.ratio = screenSize.width / previewSize.height;
   ;
+}
+
+
+
+//stt_function
+String text ='';
+late _AudioRecognizeState ob ;
+void setLang (String lang){
+  ob = _AudioRecognizeState(lang);
+}
+String sttGoogle () {
+  print("start");
+  ob.streamingRecognize();
+  return text;
+}
+class _AudioRecognizeState {
+  final RecorderStream _recorder = RecorderStream();
+  bool recognizing = false;
+  bool recognizeFinished = false;
+  StreamSubscription<List<int>>? _audioStreamSubscription;
+  BehaviorSubject<List<int>>? _audioStream;
+  bool start = false;
+  int count = 0;
+  String language='';
+
+  @override
+  _AudioRecognizeState(String language) {
+    this.language = language;
+    _recorder.initialize();
+  }
+  //streaming recognize
+  Future<String> streamingRecognize() async {
+    _audioStream = BehaviorSubject<List<int>>();
+    _audioStreamSubscription = _recorder.audioStream.listen((event) {
+      _audioStream!.add(event);
+    });
+
+    await _recorder.start();
+
+    recognizing = true;
+
+    final serviceAccount = ServiceAccount.fromString((await rootBundle.loadString('assets/poised-team-347818-1953a9db53d2.json')));
+    final speechToText = SpeechToText.viaServiceAccount(serviceAccount);
+    final config = _getConfig();
+
+    final responseStream = speechToText.streamingRecognize(
+        StreamingRecognitionConfig(config: config, interimResults: true),
+        _audioStream!);
+
+    var responseText = '';
+
+    responseStream.listen((data) {
+      final currentText =
+      data.results.map((e) => e.alternatives.first.transcript).join('\n');
+
+      if (data.results.first.isFinal) {
+        responseText += '\n' + currentText;
+
+        text = responseText;
+        recognizeFinished = true;
+      } else {
+        text = responseText + '\n' + currentText;
+        recognizeFinished = true;
+      }
+    });
+    print("in" +text);
+    return text;
+  }
+
+  void stopRecording() async {
+    await _recorder.stop();
+    await _audioStreamSubscription?.cancel();
+    await _audioStream?.close();
+    recognizing = false;
+  }
+
+  RecognitionConfig _getConfig() => RecognitionConfig(
+      encoding: AudioEncoding.LINEAR16,
+      model: RecognitionModel.basic,
+      enableAutomaticPunctuation: true,
+      sampleRateHertz: 16000,
+      languageCode: language);
+}
+//language .. 'en_US' or 'ar'
+
+
+//stt_package
+stt.SpeechToText _speechToText = stt.SpeechToText();
+bool _speechEnabled = false;
+String lastWords = '';
+var myEvent = Event<DataTest>();
+
+Future <void> sttFlutter(String lang) async{
+  _speechEnabled =  await _speechToText.initialize();
+  await _startListening(lang);
+  myEvent.subscribe((args) => {
+    if(args!=null)
+      print('myEvent occured'+args.value)
+    });
+  print(lastWords);
+}
+Future<void> _startListening(String lang) async {
+  print ("start");
+  await _speechToText.listen(onResult: _onSpeechResult, listenFor: const Duration(seconds: 10), onSoundLevelChange: null, localeId: lang, partialResults: false);
+}
+void stopListening() async {
+  print("stop");
+  await _speechToText.stop();
+}
+void _onSpeechResult(SpeechRecognitionResult result) {
+  lastWords = result.recognizedWords;
+  DataTest test =  DataTest();
+  test.value = lastWords;
+  myEvent.broadcast(test);
+  print("onSpeech" + lastWords);
+}
+// An example custom 'argument' class
+class DataTest extends EventArgs {
+  String value='';
 }
 
 CameraController? cameraController2;
