@@ -13,7 +13,11 @@ import 'package:object_detection/modules/volunteer/data/firebase//user_firebase.
 import 'package:object_detection/ui/camera_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:audioplayers/audioplayers.dart';
+
 import 'package:wavenet/wavenet.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
 
 import 'package:flutter/services.dart';
 import 'package:google_speech/google_speech.dart';
@@ -254,8 +258,6 @@ createControllerafterDisposing(context, onLatestImageAvailable,
   ;
 }
 
-
-
 //stt_function
 String text ='';
 late _AudioRecognizeState ob ;
@@ -419,10 +421,9 @@ void directPhoneCall(String phoneNumber) async {
   await FlutterPhoneDirectCaller.callNumber(phoneNumber);
 }
 
-//tts_function
-void tts(String text, String languageCode, String voiceName) async {
-  TextToSpeechService _service =
-      TextToSpeechService('AIzaSyDQwpnGuu5GG4-aVhqBEAxj8SU_zvRz_L8');
+//tts Google
+void tts (String text , String languageCode , String voiceName)async{
+  TextToSpeechService _service = TextToSpeechService('ApI_key');
   AudioPlayer _audioPlayer = AudioPlayer();
   //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: );
   File file = await _service.textToSpeech(
@@ -431,5 +432,34 @@ void tts(String text, String languageCode, String voiceName) async {
       voiceName: voiceName,
       audioEncoding: "LINEAR16");
   //(String text , String languageCode , String voiceName , String audioEncoding)
-  _audioPlayer.play(file.path, isLocal: true);
+  //('hello, eman mohammed' , "en-US" , "en-US-Wavenet-E")
+  //('أهلاً إيمان محمد' , "ar-XA" , "ar-XA-Wavenet-D")
+  _audioPlayer.play(file.path, isLocal: true );
 }
+
+//tts offline
+bool isSpeaking = false;
+final _flutterTts = FlutterTts();
+void ttsOfline(String tex , bool speaking , String language){
+  //ttsOfline("واحد + واحد يساوي2", true, "ar")
+  //ttsOfline("one + one = 2", true, "en-US")
+  _flutterTts.setLanguage(language);
+  _flutterTts.setSpeechRate(0.4);
+  isSpeaking = speaking;
+  if(isSpeaking) {
+    speak(tex);
+  }
+  else {
+    stop();
+  }
+}
+Future<void> speak(String tex) async {
+  await _flutterTts.speak(tex);
+  print("speak");
+}
+void stop() async {
+  await _flutterTts.stop();
+  isSpeaking = false;
+  print("stop");
+}
+

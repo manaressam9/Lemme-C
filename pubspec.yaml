@@ -23,7 +23,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   sound_stream: ^0.3.0
   rxdart: ^0.27.3
   google_speech: ^2.1.1
@@ -33,6 +32,8 @@ dependencies:
   event: ^2.1.2
   audioplayers: ^0.20.1
   wavenet: ^2.0.5
+  audioplayers: ^0.20.1
+  flutter_tts: ^3.1.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -46,7 +47,6 @@ dependencies:
   path_provider: ^2.0.1
   image_picker: ^0.8.4+6
   google_ml_vision: ^0.0.7
-  flutter_tts: ^3.3.3
 
   #cubit
   flutter_bloc: ^8.0.1
