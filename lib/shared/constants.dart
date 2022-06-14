@@ -247,10 +247,9 @@ void tts (String text , String languageCode , String voiceName)async{
 //tts offline
 bool isSpeaking = false;
 final _flutterTts = FlutterTts();
-
 void ttsOfline(String tex , bool speaking , String language){
-  //("واحد + واحد يساوي2", true, "ar")
-  //("one + one = 2", true, "en-US")
+  //ttsOfline("واحد + واحد يساوي2", true, "ar")
+  //ttsOfline("one + one = 2", true, "en-US")
   _flutterTts.setLanguage(language);
   _flutterTts.setSpeechRate(0.4);
   isSpeaking = speaking;
@@ -261,12 +260,10 @@ void ttsOfline(String tex , bool speaking , String language){
     stop();
   }
 }
-
 Future<void> speak(String tex) async {
   await _flutterTts.speak(tex);
   print("speak");
 }
-
 void stop() async {
   await _flutterTts.stop();
   isSpeaking = false;
