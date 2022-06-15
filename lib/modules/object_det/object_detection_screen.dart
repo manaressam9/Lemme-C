@@ -52,6 +52,7 @@ class _ObjectDetectionState extends State<ObjectDetection>
     objName = "";
     objArea = 0.0;
     TTS.speak(OBJ_MOD_LABEL);
+
     HomeScreen.cubit.changeSelectedIndex(0);
     ObjectDetection.cameraView = CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL, pauseModule);
   }

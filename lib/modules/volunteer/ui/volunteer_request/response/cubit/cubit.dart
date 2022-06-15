@@ -20,17 +20,33 @@ class ResponseCubit extends Cubit<VolunteerResponseStates> {
   Response? response;
 
   void speakResponseInformation() async {
-    if (response == null)
-      return;
+    if (response == null) return;
+
     final FlutterTts flutterTts = FlutterTts();
     flutterTts.setQueueMode(1);
-    await flutterTts.speak("Cool, volunteer accept your request");
-    await flutterTts.speak(
-        "Your volunteer will arrive after${response!.routeData!.duration} minutes");
-    await flutterTts.speak(
-        "The distance between you and your volunteer is ${response!.routeData!.distance} kilometers");
+   // if (appLang == 1) {
+      await flutterTts.speak("Cool, volunteer accept your request");
+      await flutterTts.speak(
+          "Your volunteer will arrive after${response!.routeData!
+              .duration} minutes");
+      await flutterTts.speak(
+          "The distance between you and your volunteer is ${response!.routeData!
+              .distance} kilometers");
+      await flutterTts.speak("Tap on the screen to call your volunteer by phone");
+    //}
+   /* else
+      {
+        flutterTts.setLanguage("ar");
+        await flutterTts.speak("جيد، لقد اتقبل طلبك");
+        await flutterTts.speak(
+            "مساعدك سوف يصل بعد ${response!.routeData!
+                .duration} minutes");
+        await flutterTts.speak(
+            "المسافة بينك وبينه هي ${response!.routeData!
+                .distance} kilometers");
+        await flutterTts.speak("اضغط علي الشاشة لتتصل به");
+      }*/
   }
-
 
   Future<void> listenOnResponseIfExist() async {
     final preference = await getPreference();
@@ -76,5 +92,4 @@ class ResponseCubit extends Cubit<VolunteerResponseStates> {
     requestStream?.cancel();
     responseStream?.cancel();
   }
-
 }

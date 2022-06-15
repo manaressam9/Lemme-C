@@ -17,7 +17,9 @@ class ResponseScreen extends StatelessWidget {
     late ResponseCubit cubit;
     double screenWidth = getScreenWidth(context);
     return BlocProvider(
-      create: (context) => ResponseCubit()..listenOnResponseIfExist()..speakResponseInformation(),
+      create: (context) => ResponseCubit()
+        ..listenOnResponseIfExist()
+        ..speakResponseInformation(),
       child: BlocConsumer<ResponseCubit, VolunteerResponseStates>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -25,64 +27,69 @@ class ResponseScreen extends StatelessWidget {
           return cubit.response != null
               ? Stack(
                   children: [
-                    SingleChildScrollView(
-                      child: Container(
-                        width: double.infinity,
-                        child: Column(
-                          children: [
-                            buildVerticalSpace(),
-                            CircleAvatar(
-                              radius: screenWidth / 3.5,
-                              backgroundColor: MAIN_COLOR,
-                              child: CircleAvatar(
-                                backgroundColor: GREY_COLOR,
-                                radius: screenWidth / 3.6,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "Duration",
-                                      style: TextStyle(color: WHITE_COLOR),
-                                    ),
-                                    buildVerticalSpace(),
-                                    Center(
-                                      child: Text(
-                                        "${cubit.response!.routeData!.duration.toDouble().round()} minutes",
+                    InkWell(
+                      onTap: () {
+                        directPhoneCall("${cubit.response!.volunteerPhone}");
+                      },
+                      child: SingleChildScrollView(
+                        child: Container(
+                          width: double.infinity,
+                          child: Column(
+                            children: [
+                              buildVerticalSpace(),
+                              CircleAvatar(
+                                radius: screenWidth / 3.5,
+                                backgroundColor: MAIN_COLOR,
+                                child: CircleAvatar(
+                                  backgroundColor: GREY_COLOR,
+                                  radius: screenWidth / 3.6,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Duration",
+                                        style: TextStyle(color: WHITE_COLOR),
+                                      ),
+                                      buildVerticalSpace(),
+                                      Center(
+                                        child: Text(
+                                          "${cubit.response!.routeData!.duration.toDouble().round()} minutes",
+                                          style: TextStyle(
+                                              color: BLACK_COLOR, fontSize: 16),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 50,
+                              ),
+                              CircleAvatar(
+                                radius: screenWidth / 3.5,
+                                backgroundColor: MAIN_COLOR,
+                                child: CircleAvatar(
+                                  radius: screenWidth / 3.6,
+                                  backgroundColor: GREY_COLOR,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Distance",
+                                        style: TextStyle(color: WHITE_COLOR),
+                                      ),
+                                      buildVerticalSpace(),
+                                      Text(
+                                        "${cubit.response!.routeData!.distance.toDouble().round()} km",
                                         style: TextStyle(
                                             color: BLACK_COLOR, fontSize: 16),
-                                      ),
-                                    )
-                                  ],
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 50,
-                            ),
-                            CircleAvatar(
-                              radius: screenWidth / 3.5,
-                              backgroundColor: MAIN_COLOR,
-                              child: CircleAvatar(
-                                radius: screenWidth / 3.6,
-                                backgroundColor: GREY_COLOR,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "Distance",
-                                      style: TextStyle(color: WHITE_COLOR),
-                                    ),
-                                    buildVerticalSpace(),
-                                    Text(
-                                      "${cubit.response!.routeData!.distance.toDouble().round()} km",
-                                      style: TextStyle(
-                                          color: BLACK_COLOR, fontSize: 16),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -30,6 +30,13 @@ class VolunteerRequestCubit extends Cubit<VolunteerRequestStates> {
     };
   }
 
+  onRequestScreenInit() {
+    if (appLang == 1)
+      ttsOfline(REQUEST_INSTRUCTIONS, true, "en-US");
+    else
+      ttsOfline(REQUEST_INSTRUCTIONS_AR, true, "ar");
+  }
+
   String loginOrReg = 'REGISTER';
 
   void switchRegLogin() {

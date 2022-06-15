@@ -5,6 +5,8 @@ import 'package:object_detection/layouts/home_screen/home_screen.dart';
 import 'package:object_detection/shared/styles/colors.dart';
 import 'package:object_detection/strings/strings.dart';
 
+import 'layouts/splach_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -33,8 +35,7 @@ class MyApp extends StatelessWidget {
             ),
         )
       ),
-      home: HomeScreen(),
-
+        home: HomeScreen(),
 
     );
   }

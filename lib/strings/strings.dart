@@ -55,3 +55,6 @@ const MAPBOX_SECRET_KEY = 'sk.eyJ1IjoibWluYS1hc2hyYWYiLCJhIjoiY2wxMmozeTJ0MDNzNj
 const REQUEST_STATE_ACCEPTED = 'accepted';
 const PREFERENCE_RESPONSE_KEY = 'responseKey';
 
+const REQUEST_INSTRUCTIONS = "Tap on the screen to create request";
+const REQUEST_INSTRUCTIONS_AR = "اضغط علس الشاشة حتي تطلب مساعدة";
+

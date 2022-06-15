@@ -34,6 +34,10 @@ import '../models/User.dart';
 import '../ui/camera_view_singleton.dart';
 
 const MAX_HEIGHT = .0;
+const ENG = 1;
+const AR = 2;
+var appLang = ENG;
+
 
 double getScreenHeight(context) {
   return MediaQuery.of(context).size.height;
@@ -230,7 +234,7 @@ createControllerafterDisposing(context, onLatestImageAvailable,
     await cameraController!.startImageStream(onLatestImageAvailable);
     return;
   }
-  
+
   List<CameraDescription> cameras = await availableCameras();
   // cameras[0] for rear-camera
 
@@ -351,16 +355,17 @@ Future <void> sttFlutter(String lang) async{
   await _startListening(lang);
   myEvent.subscribe((args) => {
     if(args!=null)
-      print('myEvent occured'+args.value)
+      showToast('myEvent occured'+args.value)
+
     });
-  print(lastWords);
+  showToast("fff" + lastWords);
 }
 Future<void> _startListening(String lang) async {
-  print ("start");
+  showToast ("start");
   await _speechToText.listen(onResult: _onSpeechResult, listenFor: const Duration(seconds: 10), onSoundLevelChange: null, localeId: lang, partialResults: false);
 }
 void stopListening() async {
-  print("stop");
+  showToast("stop");
   await _speechToText.stop();
 }
 void _onSpeechResult(SpeechRecognitionResult result) {
@@ -368,7 +373,7 @@ void _onSpeechResult(SpeechRecognitionResult result) {
   DataTest test =  DataTest();
   test.value = lastWords;
   myEvent.broadcast(test);
-  print("onSpeech" + lastWords);
+  showToast("onSpeech" + lastWords);
 }
 // An example custom 'argument' class
 class DataTest extends EventArgs {
@@ -443,8 +448,10 @@ final _flutterTts = FlutterTts();
 void ttsOfline(String tex , bool speaking , String language){
   //ttsOfline("واحد + واحد يساوي2", true, "ar")
   //ttsOfline("one + one = 2", true, "en-US")
+  _flutterTts.setQueueMode(1);
   _flutterTts.setLanguage(language);
-  _flutterTts.setSpeechRate(0.4);
+  _flutterTts.awaitSpeakCompletion(true);
+  _flutterTts.setSpeechRate(0.2);
   isSpeaking = speaking;
   if(isSpeaking) {
     speak(tex);
@@ -455,11 +462,11 @@ void ttsOfline(String tex , bool speaking , String language){
 }
 Future<void> speak(String tex) async {
   await _flutterTts.speak(tex);
-  print("speak");
+//  showToast("speak");
 }
 void stop() async {
   await _flutterTts.stop();
   isSpeaking = false;
-  print("stop");
+  //showToast("stop");
 }
 
