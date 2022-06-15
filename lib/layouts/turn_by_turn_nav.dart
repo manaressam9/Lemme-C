@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mapbox_navigation/library.dart';
-import 'package:location_platform_interface/location_platform_interface.dart';
+//import 'package:location_platform_interface/location_platform_interface.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:volunteer_application/location_api/location_api.dart';
 
@@ -36,16 +36,16 @@ class _TurnByTurnNavigationState extends State<TurnByTurnNavigation> {
         units: VoiceUnits.metric,
         language: "en"
     );
-    final  LocationData? location =await LocationApi.getCurrentLocation();
-    final source =
-        WayPoint(name: "Me", latitude: location!.latitude,longitude: location.longitude);
-    final destination = WayPoint(
+  //  final  LocationData? location =await LocationApi.getCurrentLocation();
+   /* final source =
+        WayPoint(name: "Me", latitude: location!.latitude,longitude: location.longitude);*/
+    /*final destination = WayPoint(
         name: "Destination", latitude: 30.18024887698403,longitude: 31.347161947137206  );
     wayPoints.add(source);
     wayPoints.add(destination);
 
     await _directions.startNavigation(
-        wayPoints: wayPoints, options: _mapBoxOptions);
+        wayPoints: wayPoints, options: _mapBoxOptions);*/
   }
 
   @override

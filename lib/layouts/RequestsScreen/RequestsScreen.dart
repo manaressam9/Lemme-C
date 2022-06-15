@@ -16,14 +16,19 @@ import '../map_screen/cubit/mab_box_screen.dart';
 
 class RequestsScreen extends StatelessWidget {
   late RequestsCubit cubit;
-  late RequestStates state ;
+  late RequestStates state;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RequestsCubit()..getRequests()..checkLocationPermission(),
+      create: (context) =>
+      RequestsCubit()
+        ..getRequests()
+        ..checkLocationPermission(),
       child: BlocConsumer<RequestsCubit, RequestStates>(
-        listener: (context, state) => {
-          this.state=state
+        listener: (context, state) =>
+        {
+          this.state = state
         },
         builder: (context, state) {
           cubit = RequestsCubit.get(context);
@@ -51,37 +56,40 @@ class RequestsScreen extends StatelessWidget {
                       icon: const Icon(Icons.logout))
                 ],
               ),
-              body: state is RequestsLoading
+              body: state is RequestsLoading || state is RequestInitState
                   ? const Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: BLACK_COLOR,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : (state is RequestsRead && cubit.requestsList.isNotEmpty
-                      ? buildRequestsList()
-                      : const Center(
-                          child: Text(
-                          'There are no requests',
-                          style: TextStyle(
-                              color: GREY_COLOR,
-                              fontSize: 16,
-                              fontFamily: LIGHT_FONT),
-                        ))));
+                child: CircularProgressIndicator(
+                  backgroundColor: BLACK_COLOR,
+                  strokeWidth: 2,
+                ),
+              )
+                  :  cubit.requestsList.isNotEmpty
+                  ? buildRequestsList()
+                  : const Center(
+                  child: Text(
+                    'There are no requests',
+                    style: TextStyle(
+                        color: GREY_COLOR,
+                        fontSize: 16,
+                        fontFamily: LIGHT_FONT),
+                  )));
         },
       ),
     );
   }
 
-  buildRequestsList() => Padding(
+  buildRequestsList() =>
+      Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: ListView.builder(
-            itemBuilder: (context, index) => buildRequestItem(
-                cubit.requestsList[index], cubit.addresses[index], context,index),
+            itemBuilder: (context, index) =>
+                buildRequestItem(
+                    cubit.requestsList[index], cubit.addresses[index], context,
+                    index),
             itemCount: cubit.requestsList.length),
       );
 
-  buildRequestItem(Request request, String address, context,int index) {
+  buildRequestItem(Request request, String address, context, int index) {
     return Card(
       color: Colors.white,
       margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
@@ -92,7 +100,8 @@ class RequestsScreen extends StatelessWidget {
           children: [
             buildRow1(request.blindData, address, request.getReadableDate()),
             const Spacer(),
-            buildRow2(context, request.blindLocation,request.blindData.phone,index)
+            buildRow2(
+                context, request.blindLocation, request.blindData.phone, index)
           ],
         ),
       ),
@@ -103,7 +112,7 @@ class RequestsScreen extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildCircleImage(user.picture),
+        buildCircleImage(null),
         const SizedBox(width: 10),
         buildNameWithLocationColumn(user.fullName, location),
         Text(
@@ -131,7 +140,8 @@ class RequestsScreen extends StatelessWidget {
     );
   }
 
-  buildNameWithLocationColumn(String name, String location) => Expanded(
+  buildNameWithLocationColumn(String name, String location) =>
+      Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -147,52 +157,40 @@ class RequestsScreen extends StatelessWidget {
               style: const TextStyle(
                 color: GREY_COLOR,
                 fontFamily: LIGHT_FONT,
-                fontSize: 10,
+                fontSize: 13,
               ),
             ),
           ],
         ),
       );
 
-  buildRow2(context,MyUserLocation location , String phone, int index) => Row(
+  buildRow2(context, MyUserLocation location, String phone, int index) =>
+      Row(
         children: [
           Container(
               width: 80,
-              child: state is RequestAccepted && (state as RequestAccepted).acceptedRequestIndex == index?
-                  const Text('Accepted'):
-                  MaterialButton(
-                    onPressed: () {
-                      _displayDialog(context,index);
-                    },
-                    color: MAIN_COLOR,
-                    textColor: PRIMARY_SWATCH,
-                    child: const Text('Accept'),
-                  )
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          Container(
-              width: 80,
-              child: MaterialButton(
+              child: (state is RequestAccepted &&
+                  (state as RequestAccepted).acceptedRequestIndex == index)  || cubit.requestsList[index].state == ACCEPTED_STATE  ?
+              const Text('Accepted',style: TextStyle(color: MAIN_COLOR),) :
+              MaterialButton(
                 onPressed: () {
-
+                  _displayDialog(context, index);
                 },
-                color: GREY_COLOR,
+                color: MAIN_COLOR,
                 textColor: PRIMARY_SWATCH,
-                child: const Text('Refuse'),
-              )),
-          const Spacer(),
-          InkWell(
-            onTap: () {
-              navigate(context, MabBoxScreen(location,phone));
-            },
-            child: const Text(
-              'See location on the map',
-              style: TextStyle(
-                  fontFamily: REGULAR_FONT, color: BLACK_COLOR, fontSize: 11),
-            ),
-          )
+                child: const Text('Accept',style: TextStyle(fontSize: 12)),
+              )
+          ),
+          const SizedBox(width: 20,),
+          MaterialButton(
+              child: const Text('See location on the map',style: TextStyle(fontSize: 12),),
+              color: GREY_COLOR,
+              textColor: PRIMARY_SWATCH,
+
+              onPressed: () {
+                navigate(context,
+                    MabBoxScreen(location, cubit.blinds_ids[index], phone));
+              })
         ],
       );
 
@@ -201,16 +199,16 @@ class RequestsScreen extends StatelessWidget {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Are you sure you will serve this request?'),
+            title: const Text('Are you sure you will serve this request?',style: TextStyle(fontSize: 13,color: MAIN_COLOR),),
             actions: <Widget>[
-               MaterialButton(
-                child:  const Text('Yes'),
+              MaterialButton(
+                child: const Text('Yes'),
                 onPressed: () {
                   cubit.acceptRequest(requestIndex);
                   Navigator.of(context).pop();
                 },
-              ),MaterialButton(
-                child:  const Text('No'),
+              ), MaterialButton(
+                child: const Text('No'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

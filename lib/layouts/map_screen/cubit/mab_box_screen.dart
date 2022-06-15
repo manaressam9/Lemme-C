@@ -14,10 +14,11 @@ import 'cubit.dart';
 
 class MabBoxScreen extends StatelessWidget {
   late final MyUserLocation location;
+  late final String blindId;
   late final String phone;
   late CameraPosition _initialCameraPosition;
 
-  MabBoxScreen(this.location, this.phone) {
+  MabBoxScreen(this.location, this.blindId,this.phone) {
     _initialCameraPosition = CameraPosition(
       target: LatLng(location.latitude, location.longitude),
       zoom: 10,
@@ -66,8 +67,10 @@ class MabBoxScreen extends StatelessWidget {
         controller.addImage(
             _marker, await cubit.getBytesFromAsset(MARKER_ICON, 64));
         controller.addSymbol(_createMarker(_marker));
-        if (cubit.directions == null)
+        if (cubit.directions == null) {
+         // await cubit.listenOnBlindLocation(blindId, controller);
          await cubit.getDirections(location, controller);
+        }
       },
     );
   }

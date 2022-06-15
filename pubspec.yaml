@@ -61,6 +61,7 @@ dependencies:
   #location
   location: ^4.2.0
   geocoding: ^2.0.2
+  background_location: ^0.8.1
 
   #map box
   mapbox_gl: ^0.15.0

@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../shared/constants.dart';
@@ -8,23 +7,31 @@ import 'UserLocation.dart';
 class Request {
   UserModel blindData;
   MyUserLocation blindLocation;
-  Timestamp date ;
+  String state;
+  String? volunteerId;
 
-  Request({required this.blindData, required this.blindLocation,required this.date});
+  Timestamp date;
+
+  Request(
+      {required this.blindData, required this.blindLocation, this.state = "waiting",this.volunteerId , required this.date});
 
   Map<String, dynamic> toMap() {
     return {
       'blindData': blindData.toMap(),
       'blindLocation': blindLocation.toMap(),
+      'state': state,
+      'volunteerId': volunteerId,
       'date': date,
     };
   }
 
   static Request fromJson(Map<String, dynamic> json) {
     return Request(
-      blindData: UserModel.fromJson(json['blindData']) ,
-      blindLocation: MyUserLocation.fromJson(json['blindLocation']),
-      date: json['date']
+        blindData: UserModel.fromJson(json['blindData']),
+        blindLocation: MyUserLocation.fromJson(json['blindLocation']),
+        state: json['state'],
+        volunteerId : json['volunteerId'],
+        date: json['date']
     );
   }
 
@@ -35,9 +42,6 @@ class Request {
 
   DateTime _fromTimeStamp() {
     return DateTime.fromMicrosecondsSinceEpoch(
-         date.microsecondsSinceEpoch);
+        date.microsecondsSinceEpoch);
   }
-
-
-
 }

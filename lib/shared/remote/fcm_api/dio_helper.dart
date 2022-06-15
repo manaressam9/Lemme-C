@@ -2,6 +2,8 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import '../../../strings.dart';
+
 class FcmDioHelper {
   static late Dio dio;
 
@@ -18,11 +20,11 @@ class FcmDioHelper {
   }
 
   static Future<Response> pushFcmNotification (
-      String title, String body, String url) async{
-    return await dio.post('send', data: getData(title, body, url));
+      String title, String body) async{
+    return await dio.post('send', data: getData(title, body));
   }
 
-  static Map getData(String title, String body, String url) => {
+  static Map getData(String title, String body) => {
         "to":'${FirebaseMessaging.instance.getToken()}',
         "notification": {
           "title": "$title",
@@ -30,6 +32,6 @@ class FcmDioHelper {
           "mutable_content": true,
           "sound": "default"
         },
-        "data": {"url": "$url"}
+      //  "data": {"url": "$url"}
       };
 }

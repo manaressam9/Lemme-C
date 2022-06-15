@@ -20,12 +20,15 @@ class DioHelper {
       {required LatLng destination,
       required LatLng origin,
       required transportMean}) async {
-    Response response = await _dio.get(
-        '/driving/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}?continue_straight=true&geometries=geojson&language=en&overview=full&steps=true&access_token=$MAPBOX_PUBLIC_TOKEN');
-    if (response.statusCode == 200) {
-      return Directions.fromJson(response.data);
+    try {
+      Response response = await _dio.get(
+          '/driving/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}?continue_straight=true&geometries=geojson&language=en&overview=full&steps=true&access_token=$MAPBOX_PUBLIC_TOKEN');
+      if (response.statusCode == 200) {
+        return Directions.fromJson(response.data);
+      }
+      showToast(response.statusMessage.toString());
+    } catch (err) {
+      showToast(err.toString());
     }
-    showToast(response.statusMessage.toString());
-    return null;
   }
 }

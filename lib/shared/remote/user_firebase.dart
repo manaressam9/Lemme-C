@@ -54,7 +54,6 @@ class UserFirebase {
     return false;
   }
 
-
   static resetPassword(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
@@ -98,14 +97,9 @@ class UserFirebase {
         .update({'unseenNotifications': 0});
   }
 
-  static updateUserField(
-    String key,
-    dynamic value,
-  ) async {
-    await _fireStore
-        .collection(USERS_COLLECTION)
-        .doc(getUid())
-        .update({key: value});
+  static updateFields(
+      String requestId, Map<String, dynamic> map) async {
+    await _fireStore.collection(REQUESTS_COLLECTION).doc(requestId).update(map);
   }
 
   static updateAnotherUserField(String key, dynamic value, String uId) async {
@@ -113,17 +107,18 @@ class UserFirebase {
   }
 
   static Future<QuerySnapshot<Map<String, dynamic>>> getRequests() async {
-    return await _fireStore
-        .collection(REQUESTS_COLLECTION)
-        .get();
+    return await _fireStore.collection(REQUESTS_COLLECTION).get();
   }
 
-  static Future<void> sendResponse (Response response)async{
-   try {
-     await _fireStore.collection(RESPONSES_COLLECTION)
-         .doc(response.blindId)
-         .set(response.toMap());
-   }
-   catch (e){showToast('There is a problem, try again');}
-   }
+  static Stream<DocumentSnapshot<Map<String, dynamic>>> listenOnRequest(
+      String blindId) {
+    return _fireStore.collection(REQUESTS_COLLECTION).doc(blindId).snapshots();
+  }
+
+  static Future<void> sendResponse(Response response) async {
+    await _fireStore
+        .collection(RESPONSES_COLLECTION)
+        .doc("${response.blindId}&${response.volunteerId}")
+        .set(response.toMap());
+  }
 }

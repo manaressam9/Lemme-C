@@ -41,6 +41,14 @@ const FULL_NAME = 'Full name';
 const PHONE_NUMBER = 'Phone number';
 const ID = 'National ID';
 const LOCATION = 'location';
+const STATE = 'state';
+const VOLUNTEER_ID = 'volunteerId';
+const ACCEPTED_STATE = 'accepted';
+const WAITING_STATE = 'waiting';
 
 // map box public token
 const MAPBOX_PUBLIC_TOKEN = 'pk.eyJ1IjoibWluYS1hc2hyYWYiLCJhIjoiY2wxMmk4aWIyMDdqOTNqczBwbDdxeG1qZSJ9.EeFIz6yWMJ_voNuZ6FnIZA';
+
+// firebase cloud messaging api
+const String FCM_SERVER_KEY =
+    'AAAA2uclC4w:APA91bGdY-cl-TYrdfo-HhJ1gruxSUQkfYJWnCfTYt0wSgNbVRpweMAGlnquMNdgofY7RA__ahq0oYHPXARm5Wuqy826X1tJiJ97NgvkiTiSvdY4M9rQGjE8J8mpLPb3RUJ5rAVU2qRU';
