@@ -11,6 +11,7 @@ import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/shared/constants.dart';
+import 'package:vibration/vibration.dart';
 import '../../layouts/home_screen/home_screen.dart';
 import '../../strings/strings.dart';
 import '../../ui/camera_controller.dart';
@@ -29,11 +30,14 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
   String _scanResults = '';
   final FlutterTts flutterTts = FlutterTts();
   Uint8List? _byte;
+  late int pauseModule;
 
   @override
   void initState() {
     super.initState();
-    TTS.speak(Text_MOD_LABEL);
+    ENG_LANG? ttsOffline(Text_MOD_LABEL,EN): ttsOffline(Text_MOD_LABEL_AR, AR);
+    pauseModule = 1;
+    // TTS.speak(Text_MOD_LABEL);
     HomeScreen.cubit.changeSelectedIndex(2);
     _initializeCamera();
   }
@@ -68,31 +72,25 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        constraints: const BoxConstraints.expand(),
-        child: (CameraControllerFactory.cameraControllers[2] != null)
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: CameraPreview(
-                    CameraControllerFactory.cameraControllers[2]!))
-            : Container(),
-      ),
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add_a_photo_outlined),
-          onPressed: () async {
-            XFile rawImg = await CameraControllerFactory.cameraControllers[2]!
-                .takePicture();
-            File imgFile = File(rawImg.path);
+      body: GestureDetector(
+        onLongPress: () async {
+          Vibration.vibrate(duration: 200);
+          setState(() {
+            pauseModule = (pauseModule+1)%2;
+          });
+          XFile rawImg = await CameraControllerFactory.cameraControllers[2]!
+              .takePicture();
+          File imgFile = File(rawImg.path);
 
-            //resize the imgFile
-            final image = img.decodeImage(imgFile!.readAsBytesSync())!;
-            final thumbnail = img.copyResize(image, width: 1080);
-            final tempDir = await getTemporaryDirectory();
-            imgFile = await File('${tempDir.path}/thumb.png').create();
-            imgFile!.writeAsBytesSync(img.encodePng(thumbnail));
-            //preprocessing pipeline
-            try{
-              /*_byte = await Cv2.adaptiveThreshold(
+          //resize the imgFile
+          final image = img.decodeImage(imgFile!.readAsBytesSync())!;
+          final thumbnail = img.copyResize(image, width: 1080);
+          final tempDir = await getTemporaryDirectory();
+          imgFile = await File('${tempDir.path}/thumb.png').create();
+          imgFile!.writeAsBytesSync(img.encodePng(thumbnail));
+          //preprocessing pipeline
+          try{
+            /*_byte = await Cv2.adaptiveThreshold(
             pathFrom: CVPathFrom.GALLERY_CAMERA,
             pathString: await imgFile!.path,
             maxValue: 255,
@@ -100,45 +98,139 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
             thresholdType: Cv2.THRESH_BINARY,
             blockSize: 11,
             constantValue: 12);*/
-              _byte = await Cv2.bilateralFilter(
+            _byte = await Cv2.bilateralFilter(
+              pathFrom: CVPathFrom.GALLERY_CAMERA,
+              pathString: await imgFile!.path,
+              diameter : 15,
+              sigmaColor : 75,
+              sigmaSpace : 80,
+              borderType : Cv2.BORDER_CONSTANT,
+            );
+            imgFile =  await byteToFile(_byte!);
+            _byte = await Cv2.cvtColor(
                 pathFrom: CVPathFrom.GALLERY_CAMERA,
                 pathString: await imgFile!.path,
-                diameter : 15,
-                sigmaColor : 75,
-                sigmaSpace : 80,
-                borderType : Cv2.BORDER_CONSTANT,
-              );
-              imgFile =  await byteToFile(_byte!);
-              _byte = await Cv2.cvtColor(
-                  pathFrom: CVPathFrom.GALLERY_CAMERA,
-                  pathString: await imgFile!.path,
-                  outputType: Cv2.COLOR_RGB2GRAY
-              );
-              imgFile =  await byteToFile(_byte!);
-
-              _byte = await Cv2.adaptiveThreshold(
-                  pathFrom: CVPathFrom.GALLERY_CAMERA,
-                  pathString: await imgFile!.path,
-                  maxValue: 255,
-                  adaptiveMethod: 1,
-                  thresholdType: Cv2.THRESH_BINARY,
-                  blockSize: 9,
-                  constantValue: 6);
-            } on PlatformException catch (e){ print(e.message);}
+                outputType: Cv2.COLOR_RGB2GRAY
+            );
             imgFile =  await byteToFile(_byte!);
-            String res = await FlutterTesseractOcr.extractText(imgFile.path,
-                language: 'ara+eng',
-                args: {
-                  "psm": "4",
-                  "preserve_interword_spaces": "1",
-                });
+
+            _byte = await Cv2.adaptiveThreshold(
+                pathFrom: CVPathFrom.GALLERY_CAMERA,
+                pathString: await imgFile!.path,
+                maxValue: 255,
+                adaptiveMethod: 1,
+                thresholdType: Cv2.THRESH_BINARY,
+                blockSize: 9,
+                constantValue: 6);
+          } on PlatformException catch (e){ print(e.message);}
+          imgFile =  await byteToFile(_byte!);
+          String res = await FlutterTesseractOcr.extractText(imgFile.path,
+              language: 'ara+eng',
+              args: {
+                "psm": "6",
+                "preserve_interword_spaces": "1",
+              });
+          // final languageIdentifier = LanguageIdentifier(confidenceThreshold: 0.5);
+          // final String response = await languageIdentifier.identifyLanguage(res);
+          // print('#################');
+          // print(response);
+          setState(() {
+            _scanResults = res;
+          });
+          showToast(_scanResults);
+          print(_scanResults);
+          if(pauseModule==0){
+            ttsOffline(_scanResults, AR,queueMode: 1);
+            ttsOffline(_scanResults, EN,queueMode: 1);
+          }
+        },
+
+        onDoubleTap: () {
+          Vibration.vibrate(duration: 200);
+          setState(() {
+            pauseModule = (pauseModule+1)%2;
+          });
+          if (pauseModule==1){
+            ENG_LANG? ttsOffline("Paused",EN): ttsOffline("توقف", AR);
             setState(() {
-              _scanResults = res;
             });
-            showToast(_scanResults);
-            print(_scanResults);
-          }),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          }
+          else{
+            ENG_LANG? ttsOffline("Start", EN): ttsOffline("بدأ", AR);
+          }
+        },
+        child: Container(
+          constraints: const BoxConstraints.expand(),
+          child: (CameraControllerFactory.cameraControllers[2] != null)
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: CameraPreview(
+                      CameraControllerFactory.cameraControllers[2]!))
+              : Container(),
+        ),
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //     child: Icon(Icons.add_a_photo_outlined),
+      //     onPressed: () async {
+      //       XFile rawImg = await CameraControllerFactory.cameraControllers[2]!
+      //           .takePicture();
+      //       File imgFile = File(rawImg.path);
+      //
+      //       //resize the imgFile
+      //       final image = img.decodeImage(imgFile!.readAsBytesSync())!;
+      //       final thumbnail = img.copyResize(image, width: 1080);
+      //       final tempDir = await getTemporaryDirectory();
+      //       imgFile = await File('${tempDir.path}/thumb.png').create();
+      //       imgFile!.writeAsBytesSync(img.encodePng(thumbnail));
+      //       //preprocessing pipeline
+      //       try{
+      //         /*_byte = await Cv2.adaptiveThreshold(
+      //       pathFrom: CVPathFrom.GALLERY_CAMERA,
+      //       pathString: await imgFile!.path,
+      //       maxValue: 255,
+      //       adaptiveMethod: 1,
+      //       thresholdType: Cv2.THRESH_BINARY,
+      //       blockSize: 11,
+      //       constantValue: 12);*/
+      //         _byte = await Cv2.bilateralFilter(
+      //           pathFrom: CVPathFrom.GALLERY_CAMERA,
+      //           pathString: await imgFile!.path,
+      //           diameter : 15,
+      //           sigmaColor : 75,
+      //           sigmaSpace : 80,
+      //           borderType : Cv2.BORDER_CONSTANT,
+      //         );
+      //         imgFile =  await byteToFile(_byte!);
+      //         _byte = await Cv2.cvtColor(
+      //             pathFrom: CVPathFrom.GALLERY_CAMERA,
+      //             pathString: await imgFile!.path,
+      //             outputType: Cv2.COLOR_RGB2GRAY
+      //         );
+      //         imgFile =  await byteToFile(_byte!);
+      //
+      //         _byte = await Cv2.adaptiveThreshold(
+      //             pathFrom: CVPathFrom.GALLERY_CAMERA,
+      //             pathString: await imgFile!.path,
+      //             maxValue: 255,
+      //             adaptiveMethod: 1,
+      //             thresholdType: Cv2.THRESH_BINARY,
+      //             blockSize: 9,
+      //             constantValue: 6);
+      //       } on PlatformException catch (e){ print(e.message);}
+      //       imgFile =  await byteToFile(_byte!);
+      //       String res = await FlutterTesseractOcr.extractText(imgFile.path,
+      //           language: 'ara+eng',
+      //           args: {
+      //             "psm": "4",
+      //             "preserve_interword_spaces": "1",
+      //           });
+      //       setState(() {
+      //         _scanResults = res;
+      //       });
+      //       showToast(_scanResults);
+      //       print(_scanResults);
+      //     }),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

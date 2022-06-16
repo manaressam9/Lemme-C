@@ -23,7 +23,8 @@ class VolunteerRequestCubit extends Cubit<VolunteerRequestStates> {
   static VolunteerRequestCubit get(context) => BlocProvider.of(context);
 
   onVolunteerInit() {
-    TTS.speak(VOLUNTEER_MOD_LABEL);
+    // TTS.speak(VOLUNTEER_MOD_LABEL);
+    ENG_LANG? ttsOffline(VOLUNTEER_MOD_LABEL,EN): ttsOffline(VOLUNTEER_MOD_LABEL_AR, AR);
     HomeScreen.cubit.changeSelectedIndex(3);
     VolunteerRequestScreen.setState = () {
       emit(RegisterInitState());

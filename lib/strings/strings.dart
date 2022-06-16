@@ -6,6 +6,12 @@ const OBJ_MOD_LABEL = 'Object Finder';
 const CURR_MOD_LABEL = 'Money Counter';
 const Text_MOD_LABEL = 'Text Reader';
 const VOLUNTEER_MOD_LABEL = 'Volunteer Requiring';
+const OBJ_MOD_LABEL_AR = 'البحث عن الأشياء';
+const CURR_MOD_LABEL_AR = 'التعرف على النقود';
+const Text_MOD_LABEL_AR = 'قراءة النصوص';
+const VOLUNTEER_MOD_LABEL_AR = 'طلب المساعدة';
+
+
 
 //modules icons
 const OBJ_MOD_ICON = 'assets/images/object_icon.png';

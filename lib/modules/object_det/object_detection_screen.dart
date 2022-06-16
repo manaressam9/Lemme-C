@@ -10,6 +10,8 @@ import 'package:object_detection/tflite/recognition.dart';
 import 'package:object_detection/tflite/stats.dart';
 import 'package:object_detection/ui/box_widget.dart';
 import 'package:object_detection/utils/tts_utils.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+
 
 import '../../ui/camera_view.dart';
 
@@ -37,6 +39,10 @@ class _ObjectDetectionState extends State<ObjectDetection>
 
   /// Object Name to find
   String? objName;
+  String resText = "";
+  late stt.SpeechToText _speech;
+  bool isListen = false;
+  double confidence = 1.0;
 
   /// Tack Object Area
   late double objArea;
@@ -51,16 +57,50 @@ class _ObjectDetectionState extends State<ObjectDetection>
     pauseModule = 0;
     objName = "";
     objArea = 0.0;
-    TTS.speak(OBJ_MOD_LABEL);
+    _speech = stt.SpeechToText();
+//    TTS.speak(OBJ_MOD_LABEL);
+    ENG_LANG? ttsOffline(OBJ_MOD_LABEL,EN): ttsOffline(OBJ_MOD_LABEL_AR, AR);
     HomeScreen.cubit.changeSelectedIndex(0);
     ObjectDetection.cameraView = CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL, pauseModule);
   }
+
+  // void listen() async {
+  //   if (!isListen) {
+  //     bool avail = await _speech.initialize();
+  //     if (avail) {
+  //       setState(() {
+  //         isListen = true;
+  //       });
+  //       _speech.listen(onResult: (value) {
+  //         setState(() {
+  //           resText = value.recognizedWords;
+  //           if (value.hasConfidenceRating && value.confidence > 0) {
+  //             confidence = value.confidence;
+  //           }
+  //         });
+  //       });
+  //     }
+  //   } else {
+  //     setState(() {
+  //       isListen = false;
+  //     });
+  //     _speech.stop();
+  //   }
+  // }
+
 
   @override
   void dispose() {
     // TODO: implement dispose
     // cameraController!.dispose();
     super.dispose();
+  }
+  void speechCallback(String? recognizedText) {
+    if(mounted){
+      setState(() {
+        this.resText = recognizedText!;
+      });
+    }
   }
 
   /* @override
@@ -79,43 +119,78 @@ class _ObjectDetectionState extends State<ObjectDetection>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          // Camera View
-          ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: ObjectDetection.cameraView),
-          // Bounding boxes
-          boundingBoxes(results),
+      body: GestureDetector(
+          onLongPress: ()async{
+            Vibration.vibrate(duration: 200);
+            ENG_LANG?sttFlutter(EN):sttFlutter(AR);
+            myEvent.subscribe((args) => {
+              if(args!=null)
+                // print("################################\n"+args.value)
+                objName = args.value,
+                print("################################\n"+objName!),
+                setState(() {
+                  pauseModule = (pauseModule+1)%2;
+                })
+            });
+            // setState(() {});
+            // print('#########################');
+            // print(resText);
+            // showToast(resText);
 
-          /* (stats != null)
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      StatsRow('Inference time:', '${stats!.inferenceTime} ms'),
-                      StatsRow('Total prediction time:',
-                          '${stats!.totalElapsedTime} ms'),
-                      StatsRow('Pre-processing time:',
-                          '${stats!.preProcessingTime} ms'),
-                      StatsRow('Frame',
-                          '${CameraViewSingleton.inputImageSize?.width} X ${CameraViewSingleton.inputImageSize?.height}'),
-                    ],
-                  ),
-                )
-              : Container()*/
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(pauseModule==0?Icons.pause_sharp:Icons.play_arrow_sharp),
-        onPressed: (){
-          setState(() {
-            pauseModule = (pauseModule+1)%2;
-          });
-          print(pauseModule==0?"Paused":"Play");
+          },
+          onDoubleTap: () {
+            Vibration.vibrate(duration: 200);
+            setState(() {
+              pauseModule = (pauseModule+1)%2;
+            });
+            if (pauseModule==1){
+              ENG_LANG? ttsOffline("Paused",EN): ttsOffline("توقف", AR);
+              setState(() {
+                objName = "";
+              });
+            }
+            else{
+              ENG_LANG? ttsOffline("Start", EN): ttsOffline("بدأ", AR);
+            }
         },
+        child: Stack(
+          children: <Widget>[
+            // Camera View
+            ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: ObjectDetection.cameraView),
+            // Bounding boxes
+            boundingBoxes(results),
+
+            /* (stats != null)
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        StatsRow('Inference time:', '${stats!.inferenceTime} ms'),
+                        StatsRow('Total prediction time:',
+                            '${stats!.totalElapsedTime} ms'),
+                        StatsRow('Pre-processing time:',
+                            '${stats!.preProcessingTime} ms'),
+                        StatsRow('Frame',
+                            '${CameraViewSingleton.inputImageSize?.width} X ${CameraViewSingleton.inputImageSize?.height}'),
+                      ],
+                    ),
+                  )
+                : Container()*/
+          ],
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: FloatingActionButton(
+      //   child: Icon(pauseModule==0?Icons.pause_sharp:Icons.play_arrow_sharp),
+      //   onPressed: (){
+      //     setState(() {
+      //       pauseModule = (pauseModule+1)%2;
+      //     });
+      //     print(pauseModule==0?"Paused":"Play");
+      //   },
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -124,11 +199,10 @@ class _ObjectDetectionState extends State<ObjectDetection>
     if (this.pauseModule == 1 || results == null) {
       return Container();
     }
-
-    flutterTts.awaitSpeakCompletion(true);
-    results.forEach((element) async {
-      await flutterTts.speak(element.label);
-      //    await _service.speak(element.label, true);
+    // flutterTts.awaitSpeakCompletion(true);
+    results.forEach((element) {
+      // await flutterTts.speak(element.label);
+      ENG_LANG?ttsOffline(element.label , EN, queueMode: 1):ttsOffline(element.label, AR,queueMode: 1);
     });
 
     return Stack(
