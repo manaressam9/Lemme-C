@@ -342,74 +342,74 @@ class _AudioRecognizeState {
 //language .. 'en_US' or 'ar'
 
 //stt
-stt.SpeechToText _speechToText = stt.SpeechToText();
-// String textString = "Press The Button";
-// bool isListen = false;
-// Future<void> listen() async {
-//   if (!isListen) {
-//     bool avail = await _speechToText.initialize();
-//     if (avail) {
-//       isListen = true;
-//       _speechToText.listen(onResult: (value) {
-//         textString = value.recognizedWords;
-//         showToast(textString);
-//       });
+// stt.SpeechToText _speechToText = stt.SpeechToText();
+// // String textString = "Press The Button";
+// // bool isListen = false;
+// // Future<void> listen() async {
+// //   if (!isListen) {
+// //     bool avail = await _speechToText.initialize();
+// //     if (avail) {
+// //       isListen = true;
+// //       _speechToText.listen(onResult: (value) {
+// //         textString = value.recognizedWords;
+// //         showToast(textString);
+// //       });
+// //     }
+// //   } else {
+// //     isListen = false;
+// //     _speechToText.stop();
+// //   }
+// // }
+//
+// //#####################################
+//
+// //stt_package
+// bool _speechEnabled = false;
+// String lastWords = '';
+// var myEvent = Event<DataTest>();
+// var result = '';
+//
+// Future<Event<DataTest>> sttFlutter(String lang) async {
+//   _speechEnabled = await _speechToText.initialize();
+//   await _startListening(lang);
+//   myEvent.subscribe((args) {
+//     if (args != null) {
+//       result = args.value;
+//       showToast("input : " + result);
 //     }
-//   } else {
-//     isListen = false;
-//     _speechToText.stop();
-//   }
+//     // print("################################\n"+args.value)
+//   });
+//   return myEvent;
+//   // print(lastWords);
 // }
-
-//#####################################
-
-//stt_package
-bool _speechEnabled = false;
-String lastWords = '';
-var myEvent = Event<DataTest>();
-var result = '';
-
-Future<Event<DataTest>> sttFlutter(String lang) async {
-  _speechEnabled = await _speechToText.initialize();
-  await _startListening(lang);
-/*  myEvent.subscribe((args) {
-    if (args != null) {
-      result = args.value;
-      showToast("input : " + result);
-    }
-    // print("################################\n"+args.value)
-  });*/
-  return myEvent;
-  // print(lastWords);
-}
-
-Future<void> _startListening(String lang) async {
-  // print ("start");
-  await _speechToText.listen(
-      onResult: _onSpeechResult,
-      listenFor: const Duration(seconds: 10),
-      onSoundLevelChange: null,
-      localeId: lang,
-      partialResults: false);
-}
-
-void stopListening() async {
-  // print("stop");
-  await _speechToText.stop();
-}
-
-void _onSpeechResult(SpeechRecognitionResult result) {
-  lastWords = result.recognizedWords;
-  DataTest test = DataTest();
-  test.value = lastWords;
-  myEvent.broadcast(test);
-  // print("onSpeech" + lastWords);
-}
-
-// An example custom 'argument' class
-class DataTest extends EventArgs {
-  String value = '';
-}
+//
+// Future<void> _startListening(String lang) async {
+//   // print ("start");
+//   await _speechToText.listen(
+//       onResult: _onSpeechResult,
+//       listenFor: const Duration(seconds: 10),
+//       onSoundLevelChange: null,
+//       localeId: lang,
+//       partialResults: false);
+// }
+//
+// void stopListening() async {
+//   // print("stop");
+//   await _speechToText.stop();
+// }
+//
+// void _onSpeechResult(SpeechRecognitionResult result) {
+//   lastWords = result.recognizedWords;
+//   DataTest test = DataTest();
+//   test.value = lastWords;
+//   myEvent.broadcast(test);
+//   // print("onSpeech" + lastWords);
+// }
+//
+// // An example custom 'argument' class
+// class DataTest extends EventArgs {
+//   String value = '';
+// }
 
 CameraController? cameraController2;
 
@@ -512,47 +512,47 @@ class STT {
 
   STT(this.speechCallback);
 
-  var myEvent = Event<DataTest>();
+  // var myEvent = Event<DataTest>();
 
-  Future<void> listen() async {
-    if (!isListen) {
-      bool avail = await _speech.initialize();
-      if (avail) {
-        // setState(() {
-        //   isListen = true;
-        // });
-        isListen = true;
-
-        _speech.listen(onResult: (value) {
-          // setState(() {
-          //   textString = value.recognizedWords;
-          //   if (value.hasConfidenceRating && value.confidence > 0) {
-          //     confidence = value.confidence;
-          //   }
-          // });
-          textString = value.recognizedWords;
-          DataTest test = DataTest();
-          test.value = textString;
-          myEvent.broadcast(test);
-          myEvent.subscribe(
-              (args) => {if (args != null) speechCallback(args.value)});
-          // speechCallback(textString);
-
-          // print("################################");
-          // print(textString);
-          if (value.hasConfidenceRating && value.confidence > 0) {
-            confidence = value.confidence;
-          }
-        });
-      }
-    } else {
-      // setState(() {
-      //   isListen = false;
-      // });
-      isListen = false;
-      _speech.stop();
-    }
-  }
+  // Future<void> listen() async {
+  //   if (!isListen) {
+  //     bool avail = await _speech.initialize();
+  //     if (avail) {
+  //       // setState(() {
+  //       //   isListen = true;
+  //       // });
+  //       isListen = true;
+  //
+  //       _speech.listen(onResult: (value) {
+  //         // setState(() {
+  //         //   textString = value.recognizedWords;
+  //         //   if (value.hasConfidenceRating && value.confidence > 0) {
+  //         //     confidence = value.confidence;
+  //         //   }
+  //         // });
+  //         textString = value.recognizedWords;
+  //         DataTest test = DataTest();
+  //         test.value = textString;
+  //         myEvent.broadcast(test);
+  //         myEvent.subscribe(
+  //             (args) => {if (args != null) speechCallback(args.value)});
+  //         // speechCallback(textString);
+  //
+  //         // print("################################");
+  //         // print(textString);
+  //         if (value.hasConfidenceRating && value.confidence > 0) {
+  //           confidence = value.confidence;
+  //         }
+  //       });
+  //     }
+  //   } else {
+  //     // setState(() {
+  //     //   isListen = false;
+  //     // });
+  //     isListen = false;
+  //     _speech.stop();
+  //   }
+  // }
 
   String get textRecognized => textString;
 }

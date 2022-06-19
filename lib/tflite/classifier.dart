@@ -42,7 +42,7 @@ class Classifier {
   late List<TfLiteType> _outputTypes;
 
   /// Number of results to show
-  static const int NUM_RESULTS = 3;
+  static const int NUM_RESULTS = 10;
 
   Classifier(
     String moduleLabel, {

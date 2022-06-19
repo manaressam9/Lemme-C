@@ -1,10 +1,13 @@
 import 'package:event/src/event.dart';
+import 'package:event/src/eventargs.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/layouts/home_screen/home_screen.dart';
 import 'package:object_detection/shared/constants.dart';
 import 'package:object_detection/strings/strings.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 import '../shared/styles/colors.dart';
+import '../utils/stt_utils.dart';
 
 class SplachScreen extends StatefulWidget {
   @override
@@ -71,7 +74,7 @@ class _SplachScreenState extends State<SplachScreen> {
 
   Future<void> _speakInstructions(String text) async {
     await ttsOffline(text, EN);
-    Event<DataTest> myEvent = await sttFlutter(EN);
+    Event<DataTest> myEvent = await mySTT.listen(EN);
     myEvent.subscribe((args) async {
       if (args != null) {
         if (args.value == '1') {

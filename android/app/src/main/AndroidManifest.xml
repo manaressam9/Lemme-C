@@ -22,7 +22,7 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="Blind Assistant AR">
+        android:label="Blind Assistant EN">
 
         <activity
             android:name=".MainActivity"

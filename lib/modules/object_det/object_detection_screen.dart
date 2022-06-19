@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:event/event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -9,6 +10,7 @@ import 'package:object_detection/strings/strings.dart';
 import 'package:object_detection/tflite/recognition.dart';
 import 'package:object_detection/tflite/stats.dart';
 import 'package:object_detection/ui/box_widget.dart';
+import 'package:object_detection/utils/stt_utils.dart';
 import 'package:object_detection/utils/tts_utils.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
@@ -122,10 +124,10 @@ class _ObjectDetectionState extends State<ObjectDetection>
       body: GestureDetector(
           onLongPress: ()async{
             Vibration.vibrate(duration: 200);
-            ENG_LANG?sttFlutter(EN):sttFlutter(AR);
+            // ENG_LANG?sttFlutter(EN):sttFlutter(AR);
+            Event<DataTest> myEvent = ENG_LANG?await mySTT.listen(EN):await mySTT.listen(AR);
             myEvent.subscribe((args) => {
               if(args!=null)
-                // print("################################\n"+args.value)
                 objName = args.value,
                 print("################################\n"+objName!),
                 setState(() {
