@@ -47,7 +47,7 @@ class ResponseScreen extends StatelessWidget {
                                     buildVerticalSpace(),
                                     Center(
                                       child: Text(
-                                        "${cubit.response!.routeData!.duration.toDouble().round()} minutes",
+                                        "${(cubit.response!.routeData!.duration/60).toInt()} minutes",
                                         style: TextStyle(
                                             color: BLACK_COLOR, fontSize: 16),
                                       ),
@@ -74,7 +74,7 @@ class ResponseScreen extends StatelessWidget {
                                     ),
                                     buildVerticalSpace(),
                                     Text(
-                                      "${cubit.response!.routeData!.distance.toDouble().round()} km",
+                                      "${(cubit.response!.routeData!.distance/1000).toInt()} km",
                                       style: TextStyle(
                                           color: BLACK_COLOR, fontSize: 16),
                                     )

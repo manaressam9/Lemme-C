@@ -32,6 +32,7 @@ const MAX_HEIGHT = .0;
 bool ENG_LANG = false;
 const AR = 'ar';
 const EN = 'en-US';
+
 double getScreenHeight(context) {
   return MediaQuery.of(context).size.height;
 }
@@ -222,7 +223,6 @@ CameraController? cameraController;
 
 createControllerafterDisposing(context, onLatestImageAvailable,
     {CameraDescription? description}) async {
-
   if (cameraController != null && cameraController!.value.isInitialized) {
     await cameraController!.startImageStream(onLatestImageAvailable);
     return;
@@ -256,16 +256,19 @@ createControllerafterDisposing(context, onLatestImageAvailable,
 }
 
 //stt_function
-String text ='';
-late _AudioRecognizeState ob ;
-void setLang (String lang){
+String text = '';
+late _AudioRecognizeState ob;
+
+void setLang(String lang) {
   ob = _AudioRecognizeState(lang);
 }
-String sttGoogle () {
+
+String sttGoogle() {
   print("start");
   ob.streamingRecognize();
   return text;
 }
+
 class _AudioRecognizeState {
   final RecorderStream _recorder = RecorderStream();
   bool recognizing = false;
@@ -274,13 +277,14 @@ class _AudioRecognizeState {
   BehaviorSubject<List<int>>? _audioStream;
   bool start = false;
   int count = 0;
-  String language='';
+  String language = '';
 
   @override
   _AudioRecognizeState(String language) {
     this.language = language;
     _recorder.initialize();
   }
+
   //streaming recognize
   Future<String> streamingRecognize() async {
     _audioStream = BehaviorSubject<List<int>>();
@@ -292,7 +296,8 @@ class _AudioRecognizeState {
 
     recognizing = true;
 
-    final serviceAccount = ServiceAccount.fromString((await rootBundle.loadString('assets/poised-team-347818-1953a9db53d2.json')));
+    final serviceAccount = ServiceAccount.fromString((await rootBundle
+        .loadString('assets/poised-team-347818-1953a9db53d2.json')));
     final speechToText = SpeechToText.viaServiceAccount(serviceAccount);
     final config = _getConfig();
 
@@ -304,7 +309,7 @@ class _AudioRecognizeState {
 
     responseStream.listen((data) {
       final currentText =
-      data.results.map((e) => e.alternatives.first.transcript).join('\n');
+          data.results.map((e) => e.alternatives.first.transcript).join('\n');
 
       if (data.results.first.isFinal) {
         responseText += '\n' + currentText;
@@ -316,7 +321,7 @@ class _AudioRecognizeState {
         recognizeFinished = true;
       }
     });
-    print("in" +text);
+    print("in" + text);
     return text;
   }
 
@@ -356,44 +361,54 @@ stt.SpeechToText _speechToText = stt.SpeechToText();
 //   }
 // }
 
-
-
 //#####################################
-
 
 //stt_package
 bool _speechEnabled = false;
 String lastWords = '';
 var myEvent = Event<DataTest>();
+var result = '';
 
-void sttFlutter(String lang) async{
-  _speechEnabled =  await _speechToText.initialize();
+Future<Event<DataTest>> sttFlutter(String lang) async {
+  _speechEnabled = await _speechToText.initialize();
   await _startListening(lang);
-  myEvent.subscribe((args) => {
-    if(args!=null)
-      args.value
-      // print("################################\n"+args.value)
-    });
+/*  myEvent.subscribe((args) {
+    if (args != null) {
+      result = args.value;
+      showToast("input : " + result);
+    }
+    // print("################################\n"+args.value)
+  });*/
+  return myEvent;
   // print(lastWords);
 }
+
 Future<void> _startListening(String lang) async {
   // print ("start");
-  await _speechToText.listen(onResult: _onSpeechResult, listenFor: const Duration(seconds: 10), onSoundLevelChange: null, localeId: lang, partialResults: false);
+  await _speechToText.listen(
+      onResult: _onSpeechResult,
+      listenFor: const Duration(seconds: 10),
+      onSoundLevelChange: null,
+      localeId: lang,
+      partialResults: false);
 }
+
 void stopListening() async {
   // print("stop");
   await _speechToText.stop();
 }
+
 void _onSpeechResult(SpeechRecognitionResult result) {
   lastWords = result.recognizedWords;
-  DataTest test =  DataTest();
+  DataTest test = DataTest();
   test.value = lastWords;
   myEvent.broadcast(test);
   // print("onSpeech" + lastWords);
 }
+
 // An example custom 'argument' class
 class DataTest extends EventArgs {
-  String value='';
+  String value = '';
 }
 
 CameraController? cameraController2;
@@ -443,7 +458,7 @@ void directPhoneCall(String phoneNumber) async {
 }
 
 //tts Google
-void tts (String text , String languageCode , String voiceName)async{
+void tts(String text, String languageCode, String voiceName) async {
   TextToSpeechService _service = TextToSpeechService('ApI_key');
   AudioPlayer _audioPlayer = AudioPlayer();
   //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: );
@@ -455,23 +470,27 @@ void tts (String text , String languageCode , String voiceName)async{
   //(String text , String languageCode , String voiceName , String audioEncoding)
   //('hello, eman mohammed' , "en-US" , "en-US-Wavenet-E")
   //('أهلاً إيمان محمد' , "ar-XA" , "ar-XA-Wavenet-D")
-  _audioPlayer.play(file.path, isLocal: true );
+  _audioPlayer.play(file.path, isLocal: true);
 }
 
 //tts offline
 FlutterTts _flutterTts = FlutterTts();
-void ttsOffline(String text , String language, {int queueMode : 0}) async {
+
+Future<void> ttsOffline(String text, String language,
+    {int queueMode: 0}) async {
   await _flutterTts.setLanguage(language);
-  await _flutterTts.setSpeechRate(0.5);
+  await _flutterTts.setSpeechRate(0.3);
   await _flutterTts.awaitSpeakCompletion(true);
   await _flutterTts.setQueueMode(queueMode);
   await _flutterTts.speak(text);
- }
-  Future<void> ttsFlush()async{
-    await _flutterTts.setQueueMode(0);
-  }
-  void ttsStop()async{
-    await _flutterTts.stop();
+}
+
+Future<void> ttsFlush() async {
+  await _flutterTts.setQueueMode(0);
+}
+
+void ttsStop() async {
+  await _flutterTts.stop();
 }
 
 // Future<void> speak(String tex) async {
@@ -489,8 +508,10 @@ class STT {
   String textString = "";
   bool isListen = false;
   double confidence = 1.0;
-  Function(String? textResult ) speechCallback;
+  Function(String? textResult) speechCallback;
+
   STT(this.speechCallback);
+
   var myEvent = Event<DataTest>();
 
   Future<void> listen() async {
@@ -510,13 +531,11 @@ class STT {
           //   }
           // });
           textString = value.recognizedWords;
-          DataTest test =  DataTest();
+          DataTest test = DataTest();
           test.value = textString;
           myEvent.broadcast(test);
-          myEvent.subscribe((args) => {
-            if(args!=null)
-              speechCallback(args.value)
-          });
+          myEvent.subscribe(
+              (args) => {if (args != null) speechCallback(args.value)});
           // speechCallback(textString);
 
           // print("################################");
@@ -534,5 +553,6 @@ class STT {
       _speech.stop();
     }
   }
+
   String get textRecognized => textString;
 }
