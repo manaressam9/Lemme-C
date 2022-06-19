@@ -31,6 +31,9 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
   final FlutterTts flutterTts = FlutterTts();
   Uint8List? _byte;
   late int pauseModule;
+  RegExp arExp = RegExp("[\u0600-\u06FF]+");
+  RegExp enExp = RegExp("[a-zA-Z]+");
+
 
   @override
   void initState() {
@@ -130,18 +133,16 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
                 "psm": "6",
                 "preserve_interword_spaces": "1",
               });
-          // final languageIdentifier = LanguageIdentifier(confidenceThreshold: 0.5);
-          // final String response = await languageIdentifier.identifyLanguage(res);
-          // print('#################');
-          // print(response);
           setState(() {
             _scanResults = res;
           });
+          int arCount = arExp.allMatches(_scanResults).length;
+          int enCount = enExp.allMatches(_scanResults).length;
+
           showToast(_scanResults);
           print(_scanResults);
           if(pauseModule==0){
-            ttsOffline(_scanResults, AR,queueMode: 1);
-            ttsOffline(_scanResults, EN,queueMode: 1);
+            enCount>arCount?ttsOffline(_scanResults, EN,queueMode: 1):ttsOffline(_scanResults, AR,queueMode: 1);
           }
         },
 
