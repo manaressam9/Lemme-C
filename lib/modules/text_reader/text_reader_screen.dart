@@ -132,6 +132,7 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
                 "preserve_interword_spaces": "3",
               });
           setState(() {
+            res = res.replaceAll(RegExp("\\s+")," ").replaceAll(RegExp("[!-\/:-@\[-`\{-~]"),"");
             _scanResults = res;
           });
           int arCount = arExp.allMatches(_scanResults).length;
