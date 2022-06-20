@@ -20,8 +20,9 @@ class _SplachScreenState extends State<SplachScreen> {
     // TODO: implement initState
     /*  _speakInstructions(
         'Welcome in blind assistant app, please say one for english, or two for arabic');*/
-    ttsOffline(SPLACH_INSTRUCTIONS, EN);
-    ttsOffline(SPLACH_INSTRUCTIONS2, EN);
+    // ttsOffline(SPLACH_INSTRUCTIONS_AR, AR);
+    ttsOffline(SPLACH_INSTRUCTIONS_AR, AR, queueMode: 1);
+    ttsOffline(SPLACH_INSTRUCTIONS_EN, EN, queueMode: 1);
     super.initState();
   }
 
@@ -37,6 +38,7 @@ class _SplachScreenState extends State<SplachScreen> {
             Expanded(
               child: InkWell(
                 onTap: () {
+                  ttsStop();
                   ENG_LANG = true;
                   navigateAndFinish(context, HomeScreen());
                 },
@@ -58,6 +60,7 @@ class _SplachScreenState extends State<SplachScreen> {
             Expanded(
               child: InkWell(
                 onTap: () {
+                  ttsStop();
                   ENG_LANG = false;
                   navigateAndFinish(context, HomeScreen());
                 },
@@ -84,7 +87,6 @@ class _SplachScreenState extends State<SplachScreen> {
           navigateAndFinish(context, HomeScreen());
         }
       }
-      // print("################################\n"+args.value)
     });
 
     await Future.delayed(Duration(milliseconds: 3000));

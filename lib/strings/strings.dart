@@ -12,10 +12,10 @@ const Text_MOD_LABEL_AR = 'قراءة النصوص';
 const VOLUNTEER_MOD_LABEL_AR = 'طلب المساعدة';
 
 // instructions
-const SPLACH_INSTRUCTIONS = 'Welcome in blind assistant app. If you want the app work in english, tap on left half of the screen.';
-const SPLACH_INSTRUCTIONS2 = 'and if you want the app work in arabic, tap on right half of the screen. ';
+const SPLACH_INSTRUCTIONS_EN = 'for english, tap on the left side of the screen';
+const SPLACH_INSTRUCTIONS_AR = 'للغة العربية إضغط يمين الشاشة';
 const REQUEST_INSTRUCTIONS = 'Tap on the screen to create request';
-const REQUEST_INSTRUCTIONS_AR = 'اضغط علي الشاشة حتي تطلب مساعدة';
+const REQUEST_INSTRUCTIONS_AR = 'إضغط علي الشاشة حتى تطلب مساعدة';
 
 
 

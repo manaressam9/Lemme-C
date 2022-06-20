@@ -39,7 +39,7 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
   void initState() {
     super.initState();
     ENG_LANG? ttsOffline(Text_MOD_LABEL,EN): ttsOffline(Text_MOD_LABEL_AR, AR);
-    pauseModule = 1;
+    pauseModule = 0;
     // TTS.speak(Text_MOD_LABEL);
     HomeScreen.cubit.changeSelectedIndex(2);
     _initializeCamera();
@@ -49,10 +49,9 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
 
   _initializeCamera() async {
     await CameraControllerFactory.create(context, 2);
-    //  await cameraController!.stopImageStream();
-    //await createController(context, (frame){}, 2);
-    await CameraControllerFactory.cameraControllers[2]!
-        .setFlashMode(FlashMode.off);
+    await CameraControllerFactory.cameraControllers[2]!.setFocusMode(FocusMode.auto);
+    await CameraControllerFactory.cameraControllers[2]!.setFlashMode(FlashMode.off);
+
     setState(() {});
   }
 
@@ -79,10 +78,9 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
         onLongPress: () async {
           Vibration.vibrate(duration: 200);
           setState(() {
-            pauseModule = (pauseModule+1)%2;
+            pauseModule = 0;
           });
-          XFile rawImg = await CameraControllerFactory.cameraControllers[2]!
-              .takePicture();
+          XFile rawImg = await CameraControllerFactory.cameraControllers[2]!.takePicture();
           File imgFile = File(rawImg.path);
 
           //resize the imgFile
@@ -130,35 +128,40 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
           String res = await FlutterTesseractOcr.extractText(imgFile.path,
               language: 'ara+eng',
               args: {
-                "psm": "6",
-                "preserve_interword_spaces": "1",
+                "psm": "11",
+                "preserve_interword_spaces": "3",
               });
           setState(() {
             _scanResults = res;
           });
           int arCount = arExp.allMatches(_scanResults).length;
           int enCount = enExp.allMatches(_scanResults).length;
-
+          showToast("ar ${arCount}");
+          showToast("en ${enCount}");
           showToast(_scanResults);
           print(_scanResults);
-          if(pauseModule==0){
-            enCount>arCount?ttsOffline(_scanResults, EN,queueMode: 1):ttsOffline(_scanResults, AR,queueMode: 1);
-          }
+          enCount>arCount? await ttsOffline(_scanResults, EN): await ttsOffline(_scanResults, AR);
+
         },
 
         onDoubleTap: () {
           Vibration.vibrate(duration: 200);
+          ttsStop();
+          ENG_LANG? ttsOffline("Paused",EN): ttsOffline("توقف", AR);
           setState(() {
-            pauseModule = (pauseModule+1)%2;
+            pauseModule = 0;
           });
-          if (pauseModule==1){
-            ENG_LANG? ttsOffline("Paused",EN): ttsOffline("توقف", AR);
-            setState(() {
-            });
-          }
-          else{
-            ENG_LANG? ttsOffline("Start", EN): ttsOffline("بدأ", AR);
-          }
+
+          // setState(() {
+          //   pauseModule = (pauseModule+1)%2;
+          // });
+          // if (pauseModule==1){
+          //   ENG_LANG? ttsOffline("Paused",EN): ttsOffline("توقف", AR);
+          //   setState(() {});
+          // }
+          // else{
+          //   ENG_LANG? ttsOffline("Start", EN): ttsOffline("بدأ", AR);
+          // }
         },
         child: Container(
           constraints: const BoxConstraints.expand(),

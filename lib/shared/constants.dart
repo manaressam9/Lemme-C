@@ -479,7 +479,7 @@ FlutterTts _flutterTts = FlutterTts();
 Future<void> ttsOffline(String text, String language,
     {int queueMode: 0}) async {
   await _flutterTts.setLanguage(language);
-  await _flutterTts.setSpeechRate(0.3);
+  await _flutterTts.setSpeechRate(0.5);
   await _flutterTts.awaitSpeakCompletion(true);
   await _flutterTts.setQueueMode(queueMode);
   await _flutterTts.speak(text);
@@ -492,6 +492,7 @@ Future<void> ttsFlush() async {
 void ttsStop() async {
   await _flutterTts.stop();
 }
+
 
 // Future<void> speak(String tex) async {
 //   await _flutterTts.speak(tex);

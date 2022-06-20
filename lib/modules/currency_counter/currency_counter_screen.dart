@@ -73,8 +73,10 @@ class _CurrencyCounterState extends State<CurrencyCounter>
       body: GestureDetector(
         onDoubleTap: (){
           Vibration.vibrate(duration: 200);
+          ttsStop();
           setState(() {
             pauseModule = (pauseModule+1)%2;
+            results = null;
           });
           if (pauseModule==1){
             ENG_LANG? ttsOffline("Paused",EN): ttsOffline("توقف", AR);
@@ -112,6 +114,9 @@ class _CurrencyCounterState extends State<CurrencyCounter>
   /// Returns Stack of bounding boxes
   Widget boundingBoxes(List<Recognition>? results) {
     if (this.pauseModule ==1 || results == null) {
+      setState(() {
+        this.results = null;
+      });
       return Container();
     }
     // final FlutterTts flutterTts = FlutterTts();
@@ -129,7 +134,7 @@ class _CurrencyCounterState extends State<CurrencyCounter>
       avgScore += element.score;
     });
     avgScore /= results.length;
-    ENG_LANG?ttsOffline(totalNotes.toString() +" Pounds" , EN, queueMode: 1):ttsOffline(totalNotes.toString()+" جنيه", AR,queueMode: 1);
+    ENG_LANG?ttsOffline(totalNotes.toString() +" Pounds" , EN):ttsOffline(totalNotes.toString()+" جنيه", AR);
     // flutterTts.speak(totalNotes.toString() + " Pounds");
 
 

@@ -66,35 +66,9 @@ class _ObjectDetectionState extends State<ObjectDetection>
     ObjectDetection.cameraView = CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL, pauseModule);
   }
 
-  // void listen() async {
-  //   if (!isListen) {
-  //     bool avail = await _speech.initialize();
-  //     if (avail) {
-  //       setState(() {
-  //         isListen = true;
-  //       });
-  //       _speech.listen(onResult: (value) {
-  //         setState(() {
-  //           resText = value.recognizedWords;
-  //           if (value.hasConfidenceRating && value.confidence > 0) {
-  //             confidence = value.confidence;
-  //           }
-  //         });
-  //       });
-  //     }
-  //   } else {
-  //     setState(() {
-  //       isListen = false;
-  //     });
-  //     _speech.stop();
-  //   }
-  // }
-
-
   @override
   void dispose() {
     // TODO: implement dispose
-    // cameraController!.dispose();
     super.dispose();
   }
   void speechCallback(String? recognizedText) {
@@ -105,45 +79,34 @@ class _ObjectDetectionState extends State<ObjectDetection>
     }
   }
 
-  /* @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // App state changed before we got the chance to initialize.
-    if (cameraController == null || !cameraController!.value.isInitialized) {
-      return;
-    }
-    if (state == AppLifecycleState.inactive) {
-      // Free up memory when camera not active
-      cameraController!.dispose();
-    }
-    super.didChangeAppLifecycleState(state);
-  }*/
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GestureDetector(
           onLongPress: ()async{
+            if(pauseModule==0){
+              setState(() {
+                pauseModule = 1;
+              });
+            }
             Vibration.vibrate(duration: 200);
-            // ENG_LANG?sttFlutter(EN):sttFlutter(AR);
             Event<DataTest> myEvent = ENG_LANG?await mySTT.listen(EN):await mySTT.listen(AR);
             myEvent.subscribe((args) => {
-              if(args!=null)
+              if(args!=null){
                 objName = args.value,
-                print("################################\n"+objName!),
-                setState(() {
-                  pauseModule = (pauseModule+1)%2;
-                })
+                pauseModule = 0,
+                showToast(objName!),
+              }
             });
-            // setState(() {});
-            // print('#########################');
-            // print(resText);
-            // showToast(resText);
+
 
           },
           onDoubleTap: () {
             Vibration.vibrate(duration: 200);
+            ttsStop();
             setState(() {
               pauseModule = (pauseModule+1)%2;
+              results = null;
             });
             if (pauseModule==1){
               ENG_LANG? ttsOffline("Paused",EN): ttsOffline("توقف", AR);
@@ -198,14 +161,19 @@ class _ObjectDetectionState extends State<ObjectDetection>
 
   /// Returns Stack of bounding boxes
   Widget boundingBoxes(List<Recognition>? results) {
-    if (this.pauseModule == 1 || results == null) {
+    if (pauseModule == 1 || results == null) {
+      setState(() {
+        this.results = null;
+      });
       return Container();
     }
-    // flutterTts.awaitSpeakCompletion(true);
-    results.forEach((element) {
-      // await flutterTts.speak(element.label);
-      ENG_LANG?ttsOffline(element.label , EN, queueMode: 1):ttsOffline(element.label, AR,queueMode: 1);
-    });
+    String resultText = "";
+    results.forEach((element) {resultText += (element.label+", ");});
+    ENG_LANG? ttsOffline(resultText , EN):ttsOffline(resultText, AR);
+    // showToast(resultText);
+    // results.forEach((element) async {
+    //   ENG_LANG? await ttsOffline(element.label , EN):ttsOffline(element.label, AR);
+    // });
 
     return Stack(
       children: results
