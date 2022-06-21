@@ -293,7 +293,7 @@ class _AudioRecognizeState {
 
     recognizing = true;
 
-    final serviceAccount = ServiceAccount.fromString((await rootBundle.loadString('assets/poised-team-347818-1953a9db53d2.json')));
+    final serviceAccount = ServiceAccount.fromString((await rootBundle.loadString('')));
     final speechToText = SpeechToText.viaServiceAccount(serviceAccount);
     final config = _getConfig();
 
@@ -422,7 +422,7 @@ void directPhoneCall(String phoneNumber) async {
 //tts_function
 void tts(String text, String languageCode, String voiceName) async {
   TextToSpeechService _service =
-      TextToSpeechService('AIzaSyDQwpnGuu5GG4-aVhqBEAxj8SU_zvRz_L8');
+      TextToSpeechService('');
   AudioPlayer _audioPlayer = AudioPlayer();
   //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: );
   File file = await _service.textToSpeech(
