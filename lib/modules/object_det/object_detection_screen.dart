@@ -84,6 +84,7 @@ class _ObjectDetectionState extends State<ObjectDetection>
     return Scaffold(
       body: GestureDetector(
           onLongPress: ()async{
+            ttsStop();
             if(pauseModule==0){
               setState(() {
                 pauseModule = 1;
@@ -95,7 +96,8 @@ class _ObjectDetectionState extends State<ObjectDetection>
               if(args!=null){
                 objName = args.value,
                 pauseModule = 0,
-                showToast(objName!),
+                ENG_LANG? ttsOffline("Searching for ${objName}", EN): ttsOffline("تبحث عن "+objName!, AR),
+                // showToast(objName!),
               }
             });
 
