@@ -22,7 +22,7 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="Blind Assistant EN">
+        android:label="Lemme C">
 
         <activity
             android:name=".MainActivity"

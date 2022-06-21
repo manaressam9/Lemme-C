@@ -1,5 +1,5 @@
 //app name
-const APP_NAME = 'Blind Assistant';
+const APP_NAME = 'Lemme C';
 
 //modules labels
 const OBJ_MOD_LABEL = 'Object Finder';
@@ -41,6 +41,9 @@ const GLASSES_IMG = 'assets/images/glasses.png';
 const PHONE_MSG_IMG = 'assets/images/phone_message.png';
 const ASSISTANT_IMG = 'assets/images/assistant.png';
 const LOGIN_IMG = 'assets/images/login_img.png';
+const EG_FLAG = 'assets/images/eg.png';
+const GB_FLAG = 'assets/images/gb.png';
+const LOGO_IMG = 'assets/images/vision.png';
 
 //text_fields labels
 const EMAIL_LABEL = 'Email';

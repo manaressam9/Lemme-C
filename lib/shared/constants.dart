@@ -19,7 +19,6 @@ import 'package:flutter/services.dart';
 import 'package:google_speech/google_speech.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sound_stream/sound_stream.dart';
-import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:functional_listener/functional_listener.dart';

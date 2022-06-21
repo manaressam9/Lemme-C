@@ -1,12 +1,9 @@
 import 'package:event/src/event.dart';
-import 'package:event/src/eventargs.dart';
 import 'package:flutter/material.dart';
 import 'package:object_detection/layouts/home_screen/home_screen.dart';
 import 'package:object_detection/shared/constants.dart';
 import 'package:object_detection/strings/strings.dart';
-import 'package:speech_to_text/speech_to_text.dart';
-
-import '../shared/styles/colors.dart';
+import 'package:vibration/vibration.dart';
 import '../utils/stt_utils.dart';
 
 class SplachScreen extends StatefulWidget {
@@ -30,44 +27,97 @@ class _SplachScreenState extends State<SplachScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(APP_NAME),
+          title: Text(
+            APP_NAME,
+            style: TextStyle(fontFamily: BOLD_FONT),
+          ),
+          titleSpacing: 20,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 15.0),
+            child: Image(
+              image: AssetImage(LOGO_IMG),
+            ),
+          ),
+          leadingWidth: 50,
+          elevation: 7,
         ),
         body: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Expanded(
-              child: InkWell(
-                onTap: () {
-                  ttsStop();
-                  ENG_LANG = true;
-                  navigateAndFinish(context, HomeScreen());
-                },
-                child: Container(
-                  child: Center(
-                      child: Text(
-                    "English",
-                    style: TextStyle(fontSize: 25),
-                  )),
-                  height: double.infinity,
+              child: Container(
+                color: Color.fromRGBO(55, 57, 59, 0.9),
+                child: InkWell(
+                  onTap: () {
+                    Vibration.vibrate(duration: 200);
+                    ttsStop();
+                    ENG_LANG = true;
+                    navigateAndFinish(context, HomeScreen());
+                  },
+                  child: Container(
+                    child: Center(
+                      child: Wrap(
+                        children: [
+                          Center(child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Image(
+                              image: AssetImage(GB_FLAG),
+                              width: 60,
+                              height: 60,
+                            ),
+                          )),
+                          Center(
+                              child: Text("English",
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    color: Colors.white,
+                                  ))),
+                        ],
+                      ),
+                    ),
+                    height: double.infinity,
+                  ),
                 ),
               ),
             ),
             Container(
               height: double.infinity,
-              width: 1,
-              color: GREY_COLOR,
+              width: 3,
+              color: Colors.white,
             ),
             Expanded(
-              child: InkWell(
-                onTap: () {
-                  ttsStop();
-                  ENG_LANG = false;
-                  navigateAndFinish(context, HomeScreen());
-                },
-                child: Container(
-                  height: double.infinity,
-                  child: Center(
-                      child: Text("Arabic", style: TextStyle(fontSize: 25))),
+              child: Container(
+                color: Color.fromRGBO(61, 109, 174, 0.9),
+                child: InkWell(
+                  onTap: () {
+                    Vibration.vibrate(duration: 200);
+                    ttsStop();
+                    ENG_LANG = false;
+                    navigateAndFinish(context, HomeScreen());
+                  },
+                  child: Container(
+                    height: double.infinity,
+                    child: Center(
+                      child: Wrap(
+                        children: [
+                          Center(child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Image(
+                              image: AssetImage(EG_FLAG),
+                              width: 60,
+                              height: 60,
+                            ),
+                          )),
+                          Center(
+                              child: Text("Arabic",
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    color: Colors.white,
+                                  ))),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             )

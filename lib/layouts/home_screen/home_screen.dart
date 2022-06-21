@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:object_detection/layouts/home_screen/cubit/cubit.dart';
 import 'package:object_detection/layouts/home_screen/cubit/states.dart';
+import 'package:object_detection/layouts/splach_layout.dart';
 import 'package:object_detection/shared/constants.dart';
 import 'package:object_detection/shared/styles/icons.dart';
 import 'package:object_detection/strings/strings.dart';
+import 'package:vibration/vibration.dart';
 import '../../modules/currency_counter/currency_counter_screen.dart';
 import '../../modules/object_det/object_detection_screen.dart';
 import '../../modules/volunteer/data/firebase/user_firebase.dart';
@@ -66,17 +68,18 @@ class HomeScreenState extends State<HomeScreen>
             backgroundColor: PRIMARY_SWATCH,
             appBar: AppBar(
               title: Text(
-                'Blind Assistant',
+                APP_NAME,
                 style: TextStyle(fontFamily: BOLD_FONT),
               ),
               titleSpacing: 20,
               leading: Padding(
                 padding: const EdgeInsets.only(left: 15.0),
                 child: Image(
-                  image: AssetImage(GLASSES_IMG),
+                  image: AssetImage(LOGO_IMG),
                 ),
               ),
               leadingWidth: 50,
+              elevation: 7,
               actions: [
                 HomeScreen.cubit.selectedIndex == 3 &&
                         UserFirebase.isUserLogin()
@@ -85,7 +88,13 @@ class HomeScreenState extends State<HomeScreen>
                           _displayDialog(context);
                         },
                         icon: Icon(Icons.logout))
-                    : Container()
+                    : Container(),
+                    IconButton(
+                        onPressed: () {
+                          Vibration.vibrate(duration: 200);
+                          navigateAndFinish(context, SplachScreen());
+                        },
+                        icon: Icon(Icons.login_sharp))
               ],
               bottom: TabBar(
                 controller: _tabController,
