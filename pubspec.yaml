@@ -87,6 +87,9 @@ dependencies:
   #vibration
   vibration: ^1.7.4-nullsafety.0
 
+  #splash screen
+  animated_splash_screen: ^1.2.0
+
 
 dev_dependencies:
   flutter_test:

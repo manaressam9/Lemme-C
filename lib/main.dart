@@ -6,6 +6,8 @@ import 'package:object_detection/layouts/splach_layout.dart';
 import 'package:object_detection/shared/styles/colors.dart';
 import 'package:object_detection/strings/strings.dart';
 
+import 'layouts/animated_splash.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -34,7 +36,7 @@ class MyApp extends StatelessWidget {
             ),
         )
       ),
-      home: SplachScreen(),
+      home: AnimatedSplash(),
 
 
     );
