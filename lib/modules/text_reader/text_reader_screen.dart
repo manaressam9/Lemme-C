@@ -139,7 +139,7 @@ class _cameraControllerPreviewScannerState extends State<TextReaderScreen> {
           int enCount = enExp.allMatches(_scanResults).length;
           showToast("ar ${arCount}");
           showToast("en ${enCount}");
-          showToast(_scanResults);
+          // showToast(_scanResults);
           print(_scanResults);
           enCount>arCount? await ttsOffline(_scanResults, EN): await ttsOffline(_scanResults, AR);
 
