@@ -16,6 +16,8 @@ const SPLACH_INSTRUCTIONS_EN = 'for english, tap on the left side of the screen'
 const SPLACH_INSTRUCTIONS_AR = 'للغة العربية إضغط يمين الشاشة';
 const REQUEST_INSTRUCTIONS = 'Tap on the screen to create request';
 const REQUEST_INSTRUCTIONS_AR = 'إضغط علي الشاشة حتى تطلب مساعدة';
+const RESPONSE_WAITED_EN = 'Please wait for response';
+const RESPONSE_WAITED_AR = 'من فضلك انتظر الرد';
 
 
 

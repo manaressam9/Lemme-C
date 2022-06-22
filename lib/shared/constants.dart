@@ -480,7 +480,7 @@ Future<void> ttsOffline(String text, String language,
   await _flutterTts.setLanguage(language);
   await _flutterTts.setSpeechRate(0.5);
   await _flutterTts.awaitSpeakCompletion(true);
-  await _flutterTts.setQueueMode(queueMode);
+  if (queueMode == 1) await _flutterTts.setQueueMode(queueMode);
   await _flutterTts.speak(text);
 }
 

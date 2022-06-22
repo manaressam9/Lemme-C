@@ -85,11 +85,11 @@ class HomeScreenState extends State<HomeScreen>
                         UserFirebase.isUserLogin()
                     ? IconButton(
                         onPressed: () {
+                          Vibration.vibrate(duration: 200);
                           _displayDialog(context);
                         },
                         icon: Icon(Icons.logout))
-                    : Container(),
-                    IconButton(
+                    : IconButton(
                         onPressed: () {
                           Vibration.vibrate(duration: 200);
                           navigateAndFinish(context, SplachScreen());

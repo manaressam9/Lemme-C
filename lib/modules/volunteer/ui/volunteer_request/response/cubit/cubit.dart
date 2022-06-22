@@ -24,20 +24,29 @@ class ResponseCubit extends Cubit<VolunteerResponseStates> {
     final FlutterTts flutterTts = FlutterTts();
     flutterTts.setQueueMode(1);
     if (ENG_LANG) {
-      await flutterTts.speak("Cool, volunteer accept your request");
+      await flutterTts.speak("Cool, ${response!.volunteerName} accept your request");
       await flutterTts.speak(
           "Your volunteer will arrive after${(response!.routeData!.duration/60).toInt()} minutes");
       await flutterTts.speak(
           "The distance between you and your volunteer is ${(response!.routeData!.distance/1000).toInt()} kilometers");
+      await flutterTts.speak(
+          "Tap on the screen to call your volunteer by phone");
     }
     else
       {
-        await flutterTts.speak("جيد، هناك مساعد لطلبك");
+
+        await flutterTts.speak( " سوف يأتي لمساعدتك" + response!.volunteerName);
         await flutterTts.speak(
             "مساعدك سوف يصل بعد ${(response!.routeData!.duration/60).toInt()} دقيقة ");
         await flutterTts.speak(
             "المسافة بينك وبين مساعدك  ${(response!.routeData!.distance/1000).toInt()} كيلومتر ");
+        await flutterTts.speak(
+            "اضغط علي الشاشة لتقوم بالاتصال بمساعدك");
       }
+  }
+
+  void speakResponseWaited() async {
+    ENG_LANG? ttsOffline(RESPONSE_WAITED_EN,EN): ttsOffline(RESPONSE_WAITED_AR, AR);
   }
 
   Future<void> listenOnResponseIfExist() async {
@@ -70,6 +79,7 @@ class ResponseCubit extends Cubit<VolunteerResponseStates> {
         UserFirebase.listenOnMyResponse(responseKey).listen((doc) async {
       if (doc.exists && doc.data() != null) {
         response = Response.fromJson(doc.data()!);
+
         emit(ResponseSent());
         if (firstTime) {
           (await getPreference())
