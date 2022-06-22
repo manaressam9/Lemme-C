@@ -292,7 +292,7 @@ class _AudioRecognizeState {
 
     recognizing = true;
 
-    final serviceAccount = ServiceAccount.fromString((await rootBundle.loadString('assets/poised-team-347818-1953a9db53d2.json')));
+    final serviceAccount = ServiceAccount.fromString((await rootBundle.loadString('')));
     final speechToText = SpeechToText.viaServiceAccount(serviceAccount);
     final config = _getConfig();
 
