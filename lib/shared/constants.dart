@@ -12,32 +12,24 @@ import 'package:intl/intl.dart';
 import 'package:object_detection/modules/volunteer/data/firebase//user_firebase.dart';
 import 'package:object_detection/ui/camera_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:audioplayers/audioplayers.dart';
-
 import 'package:wavenet/wavenet.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-
-
 import 'package:flutter/services.dart';
 import 'package:google_speech/google_speech.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sound_stream/sound_stream.dart';
-import 'package:perfect_volume_control/perfect_volume_control.dart';
-
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:functional_listener/functional_listener.dart';
 import 'package:event/event.dart';
-
 import '../models/User.dart';
 import '../ui/camera_view_singleton.dart';
 
 const MAX_HEIGHT = .0;
-const ENG = 1;
-const AR = 2;
-var appLang = ENG;
-
+bool ENG_LANG = false;
+const AR = 'ar';
+const EN = 'en-US';
 
 double getScreenHeight(context) {
   return MediaQuery.of(context).size.height;
@@ -229,7 +221,6 @@ CameraController? cameraController;
 
 createControllerafterDisposing(context, onLatestImageAvailable,
     {CameraDescription? description}) async {
-
   if (cameraController != null && cameraController!.value.isInitialized) {
     await cameraController!.startImageStream(onLatestImageAvailable);
     return;
@@ -263,16 +254,19 @@ createControllerafterDisposing(context, onLatestImageAvailable,
 }
 
 //stt_function
-String text ='';
-late _AudioRecognizeState ob ;
-void setLang (String lang){
+String text = '';
+late _AudioRecognizeState ob;
+
+void setLang(String lang) {
   ob = _AudioRecognizeState(lang);
 }
-String sttGoogle () {
+
+String sttGoogle() {
   print("start");
   ob.streamingRecognize();
   return text;
 }
+
 class _AudioRecognizeState {
   final RecorderStream _recorder = RecorderStream();
   bool recognizing = false;
@@ -281,13 +275,14 @@ class _AudioRecognizeState {
   BehaviorSubject<List<int>>? _audioStream;
   bool start = false;
   int count = 0;
-  String language='';
+  String language = '';
 
   @override
   _AudioRecognizeState(String language) {
     this.language = language;
     _recorder.initialize();
   }
+
   //streaming recognize
   Future<String> streamingRecognize() async {
     _audioStream = BehaviorSubject<List<int>>();
@@ -299,7 +294,8 @@ class _AudioRecognizeState {
 
     recognizing = true;
 
-    final serviceAccount = ServiceAccount.fromString((await rootBundle.loadString('assets/poised-team-347818-1953a9db53d2.json')));
+    final serviceAccount = ServiceAccount.fromString((await rootBundle
+        .loadString('assets/poised-team-347818-1953a9db53d2.json')));
     final speechToText = SpeechToText.viaServiceAccount(serviceAccount);
     final config = _getConfig();
 
@@ -311,7 +307,7 @@ class _AudioRecognizeState {
 
     responseStream.listen((data) {
       final currentText =
-      data.results.map((e) => e.alternatives.first.transcript).join('\n');
+          data.results.map((e) => e.alternatives.first.transcript).join('\n');
 
       if (data.results.first.isFinal) {
         responseText += '\n' + currentText;
@@ -323,7 +319,7 @@ class _AudioRecognizeState {
         recognizeFinished = true;
       }
     });
-    print("in" +text);
+    print("in" + text);
     return text;
   }
 
@@ -343,42 +339,75 @@ class _AudioRecognizeState {
 }
 //language .. 'en_US' or 'ar'
 
-
-//stt_package
-stt.SpeechToText _speechToText = stt.SpeechToText();
-bool _speechEnabled = false;
-String lastWords = '';
-var myEvent = Event<DataTest>();
-
-Future <void> sttFlutter(String lang) async{
-  _speechEnabled =  await _speechToText.initialize();
-  await _startListening(lang);
-  myEvent.subscribe((args) => {
-    if(args!=null)
-      showToast('myEvent occured'+args.value)
-
-    });
-  showToast("fff" + lastWords);
-}
-Future<void> _startListening(String lang) async {
-  showToast ("start");
-  await _speechToText.listen(onResult: _onSpeechResult, listenFor: const Duration(seconds: 10), onSoundLevelChange: null, localeId: lang, partialResults: false);
-}
-void stopListening() async {
-  showToast("stop");
-  await _speechToText.stop();
-}
-void _onSpeechResult(SpeechRecognitionResult result) {
-  lastWords = result.recognizedWords;
-  DataTest test =  DataTest();
-  test.value = lastWords;
-  myEvent.broadcast(test);
-  showToast("onSpeech" + lastWords);
-}
-// An example custom 'argument' class
-class DataTest extends EventArgs {
-  String value='';
-}
+//stt
+// stt.SpeechToText _speechToText = stt.SpeechToText();
+// // String textString = "Press The Button";
+// // bool isListen = false;
+// // Future<void> listen() async {
+// //   if (!isListen) {
+// //     bool avail = await _speechToText.initialize();
+// //     if (avail) {
+// //       isListen = true;
+// //       _speechToText.listen(onResult: (value) {
+// //         textString = value.recognizedWords;
+// //         showToast(textString);
+// //       });
+// //     }
+// //   } else {
+// //     isListen = false;
+// //     _speechToText.stop();
+// //   }
+// // }
+//
+// //#####################################
+//
+// //stt_package
+// bool _speechEnabled = false;
+// String lastWords = '';
+// var myEvent = Event<DataTest>();
+// var result = '';
+//
+// Future<Event<DataTest>> sttFlutter(String lang) async {
+//   _speechEnabled = await _speechToText.initialize();
+//   await _startListening(lang);
+//   myEvent.subscribe((args) {
+//     if (args != null) {
+//       result = args.value;
+//       showToast("input : " + result);
+//     }
+//     // print("################################\n"+args.value)
+//   });
+//   return myEvent;
+//   // print(lastWords);
+// }
+//
+// Future<void> _startListening(String lang) async {
+//   // print ("start");
+//   await _speechToText.listen(
+//       onResult: _onSpeechResult,
+//       listenFor: const Duration(seconds: 10),
+//       onSoundLevelChange: null,
+//       localeId: lang,
+//       partialResults: false);
+// }
+//
+// void stopListening() async {
+//   // print("stop");
+//   await _speechToText.stop();
+// }
+//
+// void _onSpeechResult(SpeechRecognitionResult result) {
+//   lastWords = result.recognizedWords;
+//   DataTest test = DataTest();
+//   test.value = lastWords;
+//   myEvent.broadcast(test);
+//   // print("onSpeech" + lastWords);
+// }
+//
+// // An example custom 'argument' class
+// class DataTest extends EventArgs {
+//   String value = '';
+// }
 
 CameraController? cameraController2;
 
@@ -427,7 +456,7 @@ void directPhoneCall(String phoneNumber) async {
 }
 
 //tts Google
-void tts (String text , String languageCode , String voiceName)async{
+void tts(String text, String languageCode, String voiceName) async {
   TextToSpeechService _service = TextToSpeechService('ApI_key');
   AudioPlayer _audioPlayer = AudioPlayer();
   //File file = await _service.textToSpeech(text:'اهلا ايمان محمد' , languageCode: "ar-XA" , voiceName: "ar-XA-Wavenet-B", audioEncoding: );
@@ -439,34 +468,90 @@ void tts (String text , String languageCode , String voiceName)async{
   //(String text , String languageCode , String voiceName , String audioEncoding)
   //('hello, eman mohammed' , "en-US" , "en-US-Wavenet-E")
   //('أهلاً إيمان محمد' , "ar-XA" , "ar-XA-Wavenet-D")
-  _audioPlayer.play(file.path, isLocal: true );
+  _audioPlayer.play(file.path, isLocal: true);
 }
 
 //tts offline
-bool isSpeaking = false;
-final _flutterTts = FlutterTts();
-void ttsOfline(String tex , bool speaking , String language){
-  //ttsOfline("واحد + واحد يساوي2", true, "ar")
-  //ttsOfline("one + one = 2", true, "en-US")
-  _flutterTts.setQueueMode(1);
-  _flutterTts.setLanguage(language);
-  _flutterTts.awaitSpeakCompletion(true);
-  _flutterTts.setSpeechRate(0.2);
-  isSpeaking = speaking;
-  if(isSpeaking) {
-    speak(tex);
-  }
-  else {
-    stop();
-  }
-}
-Future<void> speak(String tex) async {
-  await _flutterTts.speak(tex);
-//  showToast("speak");
-}
-void stop() async {
-  await _flutterTts.stop();
-  isSpeaking = false;
-  //showToast("stop");
+FlutterTts _flutterTts = FlutterTts();
+
+Future<void> ttsOffline(String text, String language,
+    {int queueMode: 0}) async {
+  await _flutterTts.setLanguage(language);
+  await _flutterTts.setSpeechRate(0.5);
+  await _flutterTts.awaitSpeakCompletion(true);
+  if (queueMode == 1) await _flutterTts.setQueueMode(queueMode);
+  await _flutterTts.speak(text);
 }
 
+Future<void> ttsFlush() async {
+  await _flutterTts.setQueueMode(0);
+}
+
+void ttsStop() async {
+  await _flutterTts.stop();
+}
+
+
+// Future<void> speak(String tex) async {
+//   await _flutterTts.speak(tex);
+//   print("speak");
+// }
+// void stop() async {
+//   await _flutterTts.stop();
+//   isSpeaking = false;
+//   print("stop");
+// }
+
+class STT {
+  stt.SpeechToText _speech = stt.SpeechToText();
+  String textString = "";
+  bool isListen = false;
+  double confidence = 1.0;
+  Function(String? textResult) speechCallback;
+
+  STT(this.speechCallback);
+
+  // var myEvent = Event<DataTest>();
+
+  // Future<void> listen() async {
+  //   if (!isListen) {
+  //     bool avail = await _speech.initialize();
+  //     if (avail) {
+  //       // setState(() {
+  //       //   isListen = true;
+  //       // });
+  //       isListen = true;
+  //
+  //       _speech.listen(onResult: (value) {
+  //         // setState(() {
+  //         //   textString = value.recognizedWords;
+  //         //   if (value.hasConfidenceRating && value.confidence > 0) {
+  //         //     confidence = value.confidence;
+  //         //   }
+  //         // });
+  //         textString = value.recognizedWords;
+  //         DataTest test = DataTest();
+  //         test.value = textString;
+  //         myEvent.broadcast(test);
+  //         myEvent.subscribe(
+  //             (args) => {if (args != null) speechCallback(args.value)});
+  //         // speechCallback(textString);
+  //
+  //         // print("################################");
+  //         // print(textString);
+  //         if (value.hasConfidenceRating && value.confidence > 0) {
+  //           confidence = value.confidence;
+  //         }
+  //       });
+  //     }
+  //   } else {
+  //     // setState(() {
+  //     //   isListen = false;
+  //     // });
+  //     isListen = false;
+  //     _speech.stop();
+  //   }
+  // }
+
+  String get textRecognized => textString;
+}

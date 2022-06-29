@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:object_detection/layouts/home_screen/home_screen.dart';
 import 'package:object_detection/shared/constants.dart';
+import 'package:vibration/vibration.dart';
 
 import '../../../../shared/components.dart';
 import '../../../../shared/styles/colors.dart';
@@ -24,11 +26,9 @@ class _RequestScreenState extends State<RequestScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
-   // widget.cubit.onRequestScreenInit();
+    widget.cubit.onRequestInit();
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +37,8 @@ class _RequestScreenState extends State<RequestScreen> {
 
     return InkWell(
       onTap: (){
+        Vibration.vibrate(duration: 200);
         widget.cubit.onVolunteerRequest(widget.cubit);
-
       },
       child: Container(
         width: double.infinity,

@@ -26,7 +26,6 @@ dependencies:
   sound_stream: ^0.3.0
   rxdart: ^0.27.3
   google_speech: ^2.1.1
-  perfect_volume_control: ^1.0.5
   speech_to_text: ^5.5.0
   functional_listener: ^2.1.0
   event: ^2.1.2
@@ -44,8 +43,6 @@ dependencies:
   tflite_flutter_helper: ^0.3.1
   image: ^3.0.2
   path_provider: ^2.0.1
-  image_picker: ^0.8.4+6
-  google_ml_vision: ^0.0.7
 
   #cubit
   flutter_bloc: ^8.0.1
@@ -58,7 +55,6 @@ dependencies:
   firebase_core: ^1.12.0
   firebase_auth: ^3.3.6
   cloud_firestore: ^3.1.7
-  firebase_messaging: ^11.2.6
   firebase_storage: ^10.2.6
 
 
@@ -80,7 +76,7 @@ dependencies:
   pin_code_fields: ^7.3.0
 
   #location
-  location: ^4.2.0
+  location: ^4.4.0
   background_location: ^0.8.1
 
 
@@ -91,11 +87,20 @@ dependencies:
   #vibration
   vibration: ^1.7.4-nullsafety.0
 
+  #splash screen
+  animated_splash_screen: ^1.2.0
+
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   pedantic: ^1.8.0
+  flutter_launcher_icons: ^0.9.3
+
+flutter_icons:
+  android: true
+  image_path: "assets/images/vision.png"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -112,7 +117,7 @@ flutter:
     - assets/images/
     - assets/models/
     - assets/labels/
-    - assets/poised-team-347818-1953a9db53d2.json
+#    - assets/poised-team-347818-1953a9db53d2.json
     - assets/tessdata/
     - assets/tessdata_config.json
   #   - images/a_dot_burr.jpeg

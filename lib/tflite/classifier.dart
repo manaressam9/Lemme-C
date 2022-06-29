@@ -8,6 +8,7 @@ import 'package:object_detection/tflite/recognition.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
+import '../shared/constants.dart';
 import 'stats.dart';
 
 /// Classifier
@@ -41,7 +42,7 @@ class Classifier {
   late List<TfLiteType> _outputTypes;
 
   /// Number of results to show
-  static const int NUM_RESULTS = 3;
+  static const int NUM_RESULTS = 10;
 
   Classifier(
     String moduleLabel, {
@@ -52,7 +53,7 @@ class Classifier {
     // _outputShapesIndexes.clear();
     if (moduleLabel == OBJ_MOD_LABEL) {
       MODEL_FILE_NAME = 'models/objectDetect_lite4.tflite';
-      LABEL_FILE_NAME = "labels/labelmap.txt";
+      LABEL_FILE_NAME = ENG_LANG?"labels/labelmap.txt":"labels/labelmap_ar.txt";
       INPUT_SIZE = 640;
       // TensorBuffer outputLocations = TensorBufferFloat(_outputShapes[0]);
       // TensorBuffer outputClasses = TensorBufferFloat(_outputShapes[1]);
@@ -63,7 +64,7 @@ class Classifier {
       _outputShapesIndexes.add(2);
       _outputShapesIndexes.add(3);
     } else {
-      MODEL_FILE_NAME = "models/currencyLite3_v1.300.tflite";
+      MODEL_FILE_NAME = "models/currencyLite3_v2.300.tflite";
       LABEL_FILE_NAME = "labels/currencyLabels.txt";
       INPUT_SIZE = 512;
       _outputShapesIndexes.add(1);

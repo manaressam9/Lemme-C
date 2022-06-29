@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:object_detection/layouts/home_screen/home_screen.dart';
+import 'package:object_detection/shared/constants.dart';
 import 'package:object_detection/strings/strings.dart';
 import 'package:object_detection/tflite/recognition.dart';
 import 'package:object_detection/tflite/stats.dart';
 import 'package:object_detection/ui/box_widget.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:vibration/vibration.dart';
 
 import '../../ui/camera_view.dart';
 import '../../utils/tts_utils.dart';
@@ -34,14 +36,14 @@ class _CurrencyCounterState extends State<CurrencyCounter>
   late int pauseModule;
 
   get infrenceResults => null;
-  final FlutterTts flutterTts = FlutterTts();
+  // final FlutterTts flutterTts = FlutterTts();
 
   @override
   void initState() {
     super.initState();
-
     pauseModule = 0;
-    TTS.speak(CURR_MOD_LABEL);
+    // TTS.speak(CURR_MOD_LABEL);
+    ENG_LANG? ttsOffline(CURR_MOD_LABEL,EN): ttsOffline(CURR_MOD_LABEL_AR, AR);
     HomeScreen.cubit.changeSelectedIndex(1);
     CurrencyCounter.cameraView = CameraView(resultsCallback, statsCallback, CURR_MOD_LABEL,pauseModule);
   }
@@ -68,59 +70,61 @@ class _CurrencyCounterState extends State<CurrencyCounter>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          // Camera View
-
-          ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-
-              child:  CurrencyCounter.cameraView),
-          // Bounding boxes
-          boundingBoxes(results),
-
-          /* (stats != null)
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      StatsRow(
-                          'Inference time:', '${stats!.inferenceTime} ms'),
-                      StatsRow('Total prediction time:',
-                          '${stats!.totalElapsedTime} ms'),
-                      StatsRow('Pre-processing time:',
-                          '${stats!.preProcessingTime} ms'),
-                      StatsRow('Frame',
-                          '${CameraViewSingleton.inputImageSize?.width} X ${CameraViewSingleton.inputImageSize?.height}'),
-                    ],
-                  ),
-                )
-              : Container()*/
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(pauseModule==0?Icons.pause_sharp:Icons.play_arrow_sharp),
-        onPressed: (){
+      body: GestureDetector(
+        onDoubleTap: (){
+          Vibration.vibrate(duration: 200);
+          ttsStop();
           setState(() {
             pauseModule = (pauseModule+1)%2;
+            results = null;
           });
-          print(pauseModule==0?"Paused":"Play");
+          if (pauseModule==1){
+            ENG_LANG? ttsOffline("Paused",EN): ttsOffline("توقف", AR);
+          }
+          else{
+            ENG_LANG? ttsOffline("Start", EN): ttsOffline("بدأ", AR);
+          }
         },
+        child: Stack(
+          children: <Widget>[
+            // Camera View
+
+            ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+
+                child:  CurrencyCounter.cameraView),
+            // Bounding boxes
+            boundingBoxes(results),
+          ],
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: FloatingActionButton(
+      //   child: Icon(pauseModule==0?Icons.pause_sharp:Icons.play_arrow_sharp),
+      //   onPressed: (){
+      //     setState(() {
+      //       pauseModule = (pauseModule+1)%2;
+      //     });
+      //     print(pauseModule==0?"Paused":"Play");
+      //   },
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   /// Returns Stack of bounding boxes
   Widget boundingBoxes(List<Recognition>? results) {
     if (this.pauseModule ==1 || results == null) {
+      setState(() {
+        this.results = null;
+      });
       return Container();
     }
-    final FlutterTts flutterTts = FlutterTts();
-    flutterTts.awaitSpeakCompletion(true);
+    // final FlutterTts flutterTts = FlutterTts();
+    // flutterTts.awaitSpeakCompletion(true);
     results.forEach((element) async {
       String currency = element.label.replaceFirst("Egp", " Pounds");
-      await flutterTts.speak(currency);
+      // await flutterTts.speak(currency);
+
     });
     //Counting Notes and Calc AVG Score
     int totalNotes = 0;
@@ -130,7 +134,9 @@ class _CurrencyCounterState extends State<CurrencyCounter>
       avgScore += element.score;
     });
     avgScore /= results.length;
-    flutterTts.speak(totalNotes.toString() + " Pounds");
+    ENG_LANG?ttsOffline(totalNotes.toString() +" Pounds" , EN):ttsOffline(totalNotes.toString()+" جنيه", AR);
+    // flutterTts.speak(totalNotes.toString() + " Pounds");
+
 
     // results.forEach((element) async {
     //   String currency = element.label.replaceFirst("Egp", " Pounds");

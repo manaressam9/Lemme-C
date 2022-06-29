@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:event/event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -9,7 +10,10 @@ import 'package:object_detection/strings/strings.dart';
 import 'package:object_detection/tflite/recognition.dart';
 import 'package:object_detection/tflite/stats.dart';
 import 'package:object_detection/ui/box_widget.dart';
+import 'package:object_detection/utils/stt_utils.dart';
 import 'package:object_detection/utils/tts_utils.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+
 
 import '../../ui/camera_view.dart';
 
@@ -37,6 +41,10 @@ class _ObjectDetectionState extends State<ObjectDetection>
 
   /// Object Name to find
   String? objName;
+  String resText = "";
+  late stt.SpeechToText _speech;
+  bool isListen = false;
+  double confidence = 1.0;
 
   /// Tack Object Area
   late double objArea;
@@ -51,8 +59,9 @@ class _ObjectDetectionState extends State<ObjectDetection>
     pauseModule = 0;
     objName = "";
     objArea = 0.0;
-    TTS.speak(OBJ_MOD_LABEL);
-
+    _speech = stt.SpeechToText();
+//    TTS.speak(OBJ_MOD_LABEL);
+    ENG_LANG? ttsOffline(OBJ_MOD_LABEL,EN): ttsOffline(OBJ_MOD_LABEL_AR, AR);
     HomeScreen.cubit.changeSelectedIndex(0);
     ObjectDetection.cameraView = CameraView(resultsCallback, statsCallback, OBJ_MOD_LABEL, pauseModule);
   }
@@ -60,77 +69,113 @@ class _ObjectDetectionState extends State<ObjectDetection>
   @override
   void dispose() {
     // TODO: implement dispose
-    // cameraController!.dispose();
     super.dispose();
   }
-
-  /* @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // App state changed before we got the chance to initialize.
-    if (cameraController == null || !cameraController!.value.isInitialized) {
-      return;
+  void speechCallback(String? recognizedText) {
+    if(mounted){
+      setState(() {
+        this.resText = recognizedText!;
+      });
     }
-    if (state == AppLifecycleState.inactive) {
-      // Free up memory when camera not active
-      cameraController!.dispose();
-    }
-    super.didChangeAppLifecycleState(state);
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          // Camera View
-          ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: ObjectDetection.cameraView),
-          // Bounding boxes
-          boundingBoxes(results),
+      body: GestureDetector(
+          onLongPress: ()async{
+            ttsStop();
+            if(pauseModule==0){
+              setState(() {
+                pauseModule = 1;
+              });
+            }
+            Vibration.vibrate(duration: 200);
+            Event<DataTest> myEvent = ENG_LANG?await mySTT.listen(EN):await mySTT.listen(AR);
+            myEvent.subscribe((args) => {
+              if(args!=null){
+                objName = args.value,
+                pauseModule = 0,
+                ENG_LANG? ttsOffline("Searching for ${objName}", EN): ttsOffline("تبحث عن "+objName!, AR),
+                // showToast(objName!),
+              }
+            });
 
-          /* (stats != null)
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      StatsRow('Inference time:', '${stats!.inferenceTime} ms'),
-                      StatsRow('Total prediction time:',
-                          '${stats!.totalElapsedTime} ms'),
-                      StatsRow('Pre-processing time:',
-                          '${stats!.preProcessingTime} ms'),
-                      StatsRow('Frame',
-                          '${CameraViewSingleton.inputImageSize?.width} X ${CameraViewSingleton.inputImageSize?.height}'),
-                    ],
-                  ),
-                )
-              : Container()*/
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(pauseModule==0?Icons.pause_sharp:Icons.play_arrow_sharp),
-        onPressed: (){
-          setState(() {
-            pauseModule = (pauseModule+1)%2;
-          });
-          print(pauseModule==0?"Paused":"Play");
+
+          },
+          onDoubleTap: () {
+            Vibration.vibrate(duration: 200);
+            ttsStop();
+            setState(() {
+              pauseModule = (pauseModule+1)%2;
+              results = null;
+            });
+            if (pauseModule==1){
+              ENG_LANG? ttsOffline("Paused",EN): ttsOffline("توقف", AR);
+              setState(() {
+                objName = "";
+              });
+            }
+            else{
+              ENG_LANG? ttsOffline("Start", EN): ttsOffline("بدأ", AR);
+            }
         },
+        child: Stack(
+          children: <Widget>[
+            // Camera View
+            ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: ObjectDetection.cameraView),
+            // Bounding boxes
+            boundingBoxes(results),
+
+            /* (stats != null)
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        StatsRow('Inference time:', '${stats!.inferenceTime} ms'),
+                        StatsRow('Total prediction time:',
+                            '${stats!.totalElapsedTime} ms'),
+                        StatsRow('Pre-processing time:',
+                            '${stats!.preProcessingTime} ms'),
+                        StatsRow('Frame',
+                            '${CameraViewSingleton.inputImageSize?.width} X ${CameraViewSingleton.inputImageSize?.height}'),
+                      ],
+                    ),
+                  )
+                : Container()*/
+          ],
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: FloatingActionButton(
+      //   child: Icon(pauseModule==0?Icons.pause_sharp:Icons.play_arrow_sharp),
+      //   onPressed: (){
+      //     setState(() {
+      //       pauseModule = (pauseModule+1)%2;
+      //     });
+      //     print(pauseModule==0?"Paused":"Play");
+      //   },
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   /// Returns Stack of bounding boxes
   Widget boundingBoxes(List<Recognition>? results) {
-    if (this.pauseModule == 1 || results == null) {
+    if (pauseModule == 1 || results == null) {
+      setState(() {
+        this.results = null;
+      });
       return Container();
     }
-
-    flutterTts.awaitSpeakCompletion(true);
-    results.forEach((element) async {
-      await flutterTts.speak(element.label);
-      //    await _service.speak(element.label, true);
-    });
+    String resultText = "";
+    results.forEach((element) {resultText += (element.label+", ");});
+    ENG_LANG? ttsOffline(resultText , EN):ttsOffline(resultText, AR);
+    // showToast(resultText);
+    // results.forEach((element) async {
+    //   ENG_LANG? await ttsOffline(element.label , EN):ttsOffline(element.label, AR);
+    // });
 
     return Stack(
       children: results

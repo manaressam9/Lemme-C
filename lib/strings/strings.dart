@@ -1,11 +1,25 @@
 //app name
-const APP_NAME = 'Blind Assistant';
+const APP_NAME = 'Lemme C';
 
 //modules labels
 const OBJ_MOD_LABEL = 'Object Finder';
 const CURR_MOD_LABEL = 'Money Counter';
 const Text_MOD_LABEL = 'Text Reader';
 const VOLUNTEER_MOD_LABEL = 'Volunteer Requiring';
+const OBJ_MOD_LABEL_AR = 'البحث عن الأشياء';
+const CURR_MOD_LABEL_AR = 'التعرف على النقود';
+const Text_MOD_LABEL_AR = 'قراءة النصوص';
+const VOLUNTEER_MOD_LABEL_AR = 'طلب المساعدة';
+
+// instructions
+const SPLACH_INSTRUCTIONS_EN = 'for english, tap on the left side of the screen';
+const SPLACH_INSTRUCTIONS_AR = 'للغة العربية إضغط يمين الشاشة';
+const REQUEST_INSTRUCTIONS = 'Tap on the screen to create request';
+const REQUEST_INSTRUCTIONS_AR = 'إضغط علي الشاشة حتى تطلب مساعدة';
+const RESPONSE_WAITED_EN = 'Please wait for response';
+const RESPONSE_WAITED_AR = 'من فضلك انتظر الرد';
+
+
 
 //modules icons
 const OBJ_MOD_ICON = 'assets/images/object_icon.png';
@@ -29,6 +43,9 @@ const GLASSES_IMG = 'assets/images/glasses.png';
 const PHONE_MSG_IMG = 'assets/images/phone_message.png';
 const ASSISTANT_IMG = 'assets/images/assistant.png';
 const LOGIN_IMG = 'assets/images/login_img.png';
+const EG_FLAG = 'assets/images/eg.png';
+const GB_FLAG = 'assets/images/gb.png';
+const LOGO_IMG = 'assets/images/vision.png';
 
 //text_fields labels
 const EMAIL_LABEL = 'Email';

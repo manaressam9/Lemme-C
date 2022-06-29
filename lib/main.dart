@@ -2,10 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:object_detection/layouts/home_screen/home_screen.dart';
+import 'package:object_detection/layouts/splach_layout.dart';
 import 'package:object_detection/shared/styles/colors.dart';
 import 'package:object_detection/strings/strings.dart';
-
-import 'layouts/splach_screen.dart';
+import 'layouts/animated_splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +35,8 @@ class MyApp extends StatelessWidget {
             ),
         )
       ),
-        home: HomeScreen(),
+      home: AnimatedSplash(),
+
 
     );
   }
